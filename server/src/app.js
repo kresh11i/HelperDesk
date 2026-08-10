@@ -3,6 +3,9 @@ import express from 'express';
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import healthRoutes from "./routes/healthRoutes.js"
+import authRoutes from "./routes/authRoutes.js"
+
 
 
 const app = express();
@@ -18,10 +21,9 @@ app.use(cors(corsPolicy));
 app.use(express.json());
 app.use(morgan('dev'))
 
-app.get("/health", (req, res) => {
-    res.json({
-        message: "HelpDesk API is running Client connected"
-    });
-});
+//usage of routes
+app.use("/",healthRoutes);
+app.use("/auth" ,authRoutes )
+
 
 export default app;
