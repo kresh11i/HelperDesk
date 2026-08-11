@@ -1,0 +1,153 @@
+import { AuthWeakPasswordError } from "@supabase/supabase-js";
+import supabase from "../config/supabaseClient.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+export async function register(data) {
+    const { organizationName, name, email, password } = data;
+
+    // Validate input
+    if (!organizationName || !name || !email || !password) {
+        return {
+            status: 400,
+            message: "All fields are required",
+        };
+    }
+
+    // Check if user already exists
+    try {
+        // ✅ MODIFIED: Renamed data -> existingUsers, error -> userCheckError
+        const { data: existingUsers, error: userCheckError } = await supabase
+            .from("users")
+            .select("email")
+            .eq("email", email);
+
+        if (userCheckError) {
+            return {
+                status: 500,
+                message: "Database error",
+            };
+        }
+
+        if (existingUsers.length > 0) {
+            return {
+                status: 400,
+                message: "User already exists",
+            };
+        }
+    } catch (error) {
+        return {
+            status: 500,
+            message: "Internal Server Error",
+        };
+    }
+
+    // Create organization
+    // ✅ MODIFIED: Renamed error -> orgError
+    const { data: org, error: orgError } = await supabase
+        .from("organizations")
+        .insert([
+            {
+                name: organizationName,
+            },
+        ])
+        .select();
+
+    // ✅ MODIFIED: Check organization creation
+    if (orgError) {
+        return {
+            status: 500,
+            message: "Organization creation failed",
+        };
+    }
+
+    // Hash password
+    const hashedPass = await bcrypt.hash(password, 10);
+
+    // Create user
+    try {
+        // ✅ MODIFIED: Renamed data -> newUser, error -> userInsertError
+        const { data: newUser, error: userInsertError } = await supabase
+            .from("users")
+            .insert([
+                {
+                    org_id: org[0].id,
+                    name,
+                    email,
+                    password: hashedPass,
+                },
+            ])
+            .select();
+
+        // ✅ MODIFIED: Check user insertion
+        if (userInsertError) {
+            return {
+                status: 500,
+                message: "User creation failed",
+            };
+        }
+
+        // ✅ MODIFIED: Success response
+        return {
+            status: 201,
+            message: "User registered successfully",
+            data: newUser,
+        };
+    } catch (error) {
+        // ✅ MODIFIED: Catch block
+        return {
+            status: 500,
+            message: "Internal Server Error",
+        };
+    }
+}
+
+export async function login(data) {
+    const { email, password } = data;
+    if (!email || !password) {
+        return {
+            status: 400,
+            message: "All fields requried"
+        }
+    }
+    const { data: loginUser, error: loginError } = await supabase.from("users").select("*").eq("email", email);
+    if (loginError) {
+        return {
+            status: 500,
+            message: "Database error"
+        }
+
+    }
+
+    if (loginUser.length === 0) {
+        return {
+            status: 404,
+            message: "User not found"
+        }
+    }
+
+    const userData = loginUser[0];
+    const isMatch = await bcrypt.compare(password, userData.password);
+    if (!isMatch) {
+        return {
+            status: 400,
+            message: "Invalid credentials"
+        }
+    }
+    //jwt signings
+    const token = jwt.sign({
+        id: userData.id,
+        org_id: userData.org_id,
+        email: userData.email,
+    }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+    })
+    return {
+        status: 200,
+        message: "Login successful",
+        token: token,
+    };
+
+}

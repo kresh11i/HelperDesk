@@ -1,7 +1,29 @@
-import express from "express";
+import supabase from "../config/supabaseClient.js";
 
-export function healthChecker(req,res){
-    res.json({
-        message:"HelpDesk API is running Client connected",
-    })
-}
+export const healthChecker = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("organizations")
+      .select("*");
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Database connection failed",
+        error: error.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Database connected successfully",
+      data,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+};
