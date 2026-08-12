@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import healthRoutes from "./routes/healthRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
+import { authenticateUser } from './middleware/authMiddleware.js';
 
 
 
@@ -22,7 +23,7 @@ app.use(express.json());
 app.use(morgan('dev'))
 
 //usage of routes
-app.use("/",healthRoutes);
+app.use("/health",authenticateUser,healthRoutes);
 app.use("/auth" ,authRoutes )
 
 
