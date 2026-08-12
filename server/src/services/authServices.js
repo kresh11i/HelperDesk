@@ -137,8 +137,9 @@ export async function login(data) {
         }
     }
     //jwt signings
+    console.log(userData);
     const token = jwt.sign({
-        id: userData.id,
+        user_id: userData.user_id,
         org_id: userData.org_id,
         email: userData.email,
     }, process.env.JWT_SECRET, {
