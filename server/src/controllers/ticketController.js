@@ -75,3 +75,28 @@ export async function deleteTicket(req, res) {
         })
     }
 }
+
+//assigning tickets
+// assigning tickets
+export async function assignTicket(req, res) {
+    try {
+        const info = {
+            ticketId: req.params.id,
+            userId: req.user.user_id,
+            org_id: req.user.org_id,
+            role: req.user.role,
+            assignedTo: req.body.assigned_to
+        };
+
+        const result = await ticketServices.assignTicket(info);
+
+        return res.status(result.status).json(result);
+
+    } catch (err) {
+        console.log(err);
+
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}

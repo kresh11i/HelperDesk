@@ -57,11 +57,15 @@ export async function getAllTickets(org_id) {
 
 export async function getTicketbyId(ticket_id, org_id) {
     try {
+        console.log("TICKET ID:", ticket_Id);
+        console.log("USER ORG ID:", org_id);
         const { data: ticket, error: ticketByIdError } = await supabase.from("tickets").select().eq("ticket_id", ticket_id).eq("org_id", org_id).single();
         if (ticketByIdError) {
+            console.log("GET TICKET ERROR:", ticketByIdError);
+
             return {
                 status: 500,
-                message: "Internal server error"
+                message: ticketByIdError.message
             }
         }
         return {
@@ -81,11 +85,16 @@ export async function getTicketbyId(ticket_id, org_id) {
 
 export async function updateTicket(ticketId, updatedData, org_id) {
     try {
+        console.log("TICKET ID:", ticketId);
+        console.log("USER ORG ID:", org_id);
         const { data: updateTicket, error: updateTicketError } = await supabase.from("tickets").update(updatedData).eq("ticket_id", ticketId).eq("org_id", org_id).select().single();
+
         if (updateTicketError) {
+            console.log("SUPABASE UPDATE ERROR:", updateTicketError);
+
             return {
                 status: 500,
-                message: "Failed to update ticket."
+                message: updateTicketError.message
             }
         }
         return {
@@ -94,11 +103,11 @@ export async function updateTicket(ticketId, updatedData, org_id) {
             ticket: updateTicket
         }
     } catch (err) {
-        console.log(err);
+        console.log(err.message);
 
         return {
             status: 500,
-            message: "Internal server error"
+            message: "Internal server error am hit"
         }
     }
 
@@ -106,7 +115,7 @@ export async function updateTicket(ticketId, updatedData, org_id) {
 
 export async function deleteTicket(ticketId, org_id) {
     try {
-        const { data: delTicket, error: delTicketError } = await supabase.from("tickets").delete().eq("ticket_id",ticketId).eq("org_id", org_id);
+        const { data: delTicket, error: delTicketError } = await supabase.from("tickets").delete().eq("ticket_id", ticketId).eq("org_id", org_id);
         if (delTicketError) {
             return {
                 status: 500,
@@ -126,4 +135,120 @@ export async function deleteTicket(ticketId, org_id) {
         }
     }
 
+}
+
+export async function assignTicket(info) {
+    try {
+
+        // Find ticket
+        const { data: ticket, error: assignError } = await supabase
+            .from("tickets")
+            .select()
+            .eq("ticket_id", info.ticketId)
+            .eq("org_id", info.org_id)
+            .maybeSingle();
+
+        if (assignError) {
+            return {
+                status: 500,
+                message: "Failed to fetch ticket"
+            };
+        }
+
+        if (!ticket) {
+            return {
+                status: 404,
+                message: "Ticket not found"
+            };
+        }
+
+        // Determine target Agent
+        let target;
+
+        // Agent self-assignment
+        if (info.role === 2) {
+
+            if (ticket.assigned_to !== null) {
+                return {
+                    status: 400,
+                    message: "Ticket is already assigned"
+                };
+            }
+
+            target = info.userId;
+
+            // Admin assignment
+        } else if (info.role === 1) {
+
+            if (!info.assignedTo) {
+                return {
+                    status: 400,
+                    message: "Agent user_id is required"
+                };
+            }
+
+            target = info.assignedTo;
+
+        } else {
+            return {
+                status: 403,
+                message: "You are not allowed to assign tickets"
+            };
+        }
+
+        // Validate target Agent
+        const { data: targetAgent, error: agentError } = await supabase
+            .from("users")
+            .select("user_id, org_id, role")
+            .eq("user_id", target)
+            .eq("org_id", info.org_id)
+            .eq("role", 2)
+            .maybeSingle();
+
+        if (agentError) {
+            return {
+                status: 500,
+                message: "Failed to validate Agent"
+            };
+        }
+
+        if (!targetAgent) {
+            return {
+                status: 400,
+                message: "Invalid Agent or Agent belongs to another organization"
+            };
+        }
+
+        // Update ticket assignment
+        const { data: updatedTicket, error: updateError } = await supabase
+            .from("tickets")
+            .update({
+                assigned_to: target
+            })
+            .eq("ticket_id", info.ticketId)
+            .eq("org_id", info.org_id)
+            .select()
+            .single();
+
+        if (updateError) {
+            return {
+                status: 500,
+                message: "Failed to assign ticket"
+            };
+        }
+
+        return {
+            status: 200,
+            message: "Ticket assigned successfully",
+            ticket: updatedTicket
+        };
+
+    } catch (err) {
+        console.log(err);
+
+        return {
+            status: 500,
+            message: "Internal server error"
+        };
+    }
 }

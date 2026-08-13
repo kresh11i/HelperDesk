@@ -16,6 +16,8 @@ export async function authenticateUser(req, res, next) {
     try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decodedToken;
+        console.log(req.user);
+
         next();
     } catch (error) {
         return res.status(401).json({
@@ -23,4 +25,22 @@ export async function authenticateUser(req, res, next) {
         });
     }
 
+}
+
+export function authorizeRole(...allowedRoles) {
+    return (req, res, next) => {
+
+        const userRole = req.user.role;
+
+        console.log("USER ROLE:", userRole);
+        console.log("ALLOWED ROLES:", allowedRoles);
+
+        if (allowedRoles.includes(userRole)) {
+            next();
+        } else {
+            return res.status(403).json({
+                message: "forbidden"
+            });
+        }
+    };
 }

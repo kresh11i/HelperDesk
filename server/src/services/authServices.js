@@ -46,21 +46,44 @@ export async function register(data) {
 
     // Create organization
     // ✅ MODIFIED: Renamed error -> orgError
-    const { data: org, error: orgError } = await supabase
+    // Find existing organization
+    const { data: existingOrg, error: orgCheckError } = await supabase
         .from("organizations")
-        .insert([
-            {
-                name: organizationName,
-            },
-        ])
-        .select();
+        .select("id")
+        .eq("name", organizationName)
+        .maybeSingle();
 
-    // ✅ MODIFIED: Check organization creation
-    if (orgError) {
+    if (orgCheckError) {
         return {
             status: 500,
-            message: "Organization creation failed",
+            message: "Organization lookup failed",
         };
+    }
+
+    // Create organization only if it doesn't exist
+    let orgId;
+
+    if (existingOrg) {
+        orgId = existingOrg.id;
+    } else {
+        const { data: newOrg, error: orgCreateError } = await supabase
+            .from("organizations")
+            .insert([
+                {
+                    name: organizationName,
+                },
+            ])
+            .select("id")
+            .single();
+
+        if (orgCreateError) {
+            return {
+                status: 500,
+                message: "Organization creation failed",
+            };
+        }
+
+        orgId = newOrg.id;
     }
 
     // Hash password
@@ -68,15 +91,17 @@ export async function register(data) {
 
     // Create user
     try {
+        const userRole = 3;
         // ✅ MODIFIED: Renamed data -> newUser, error -> userInsertError
         const { data: newUser, error: userInsertError } = await supabase
             .from("users")
             .insert([
                 {
-                    org_id: org[0].id,
+                    org_id: orgId,
                     name,
                     email,
                     password: hashedPass,
+                    role: userRole
                 },
             ])
             .select();
@@ -96,6 +121,8 @@ export async function register(data) {
             data: newUser,
         };
     } catch (error) {
+        console.log(error);
+        
         // ✅ MODIFIED: Catch block
         return {
             status: 500,
@@ -142,6 +169,7 @@ export async function login(data) {
         user_id: userData.user_id,
         org_id: userData.org_id,
         email: userData.email,
+        role: userData.role
     }, process.env.JWT_SECRET, {
         expiresIn: "1d",
     })
