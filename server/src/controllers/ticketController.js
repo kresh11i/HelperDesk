@@ -1,5 +1,6 @@
 import express from "express";
 import * as  ticketServices from "../services/ticketServices.js"
+import * as ticketStatusServices from "../services/ticketStatusServices.js"
 
 export async function createTicket(req, res) {
     const { title, description, priority } = req.body;
@@ -93,7 +94,7 @@ export async function deleteTicket(req, res) {
 }
 
 //assigning tickets
-// assigning tickets
+
 export async function assignTicket(req, res) {
     try {
         const info = {
@@ -115,4 +116,22 @@ export async function assignTicket(req, res) {
             message: "Internal server error"
         });
     }
+}
+
+export async function updateTicketStatus(req, res) {
+    try {
+        const ticketId = req.params.id;
+        const newStatus = req.body.status;
+        const user = req.user
+        const result = await ticketStatusServices.updateTicketStatus(ticketId, newStatus, user);
+
+        return res.status(result.status).json(result);
+    } catch (err) {
+        console.log(err);
+
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+
 }

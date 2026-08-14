@@ -256,7 +256,8 @@ export async function assignTicket(info) {
         const { data: updatedTicket, error: updateError } = await supabase
             .from("tickets")
             .update({
-                assigned_to: target
+                assigned_to: target,
+                status:"Assigned"
             })
             .eq("ticket_id", info.ticketId)
             .eq("org_id", info.org_id)
