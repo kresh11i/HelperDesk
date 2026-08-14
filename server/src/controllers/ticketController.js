@@ -31,21 +31,37 @@ export async function getAllTickets(req, res) {
         const result = await ticketServices.getAllTickets(req.user.org_id);
         return res.status(result.status).json(result);
     } catch (err) {
-        res.starus(500).json({ message: "Internal server error" })
+        res.status(500).json({ message: "Internal server error" })
     }
 }
 
-
 export async function getTicketbyId(req, res) {
+    console.log("GET TICKET CONTROLLER HIT");
 
     try {
+        console.log("PARAMS:", req.params);
+        console.log("USER:", req.user);
+
         const ticketId = req.params.id;
-        const result = await ticketServices.getTicketbyId(ticketId, req.user.org_id);
+
+        console.log("TICKET ID FROM PARAM:", ticketId);
+        console.log("ORG ID FROM USER:", req.user.org_id);
+
+        const result = await ticketServices.getTicketbyId(
+            ticketId,
+            req.user.org_id
+        );
+
+        console.log("SERVICE RESULT:", result);
+
         return res.status(result.status).json(result);
 
     } catch (err) {
-        console.log(err);
-        res.starus(500).json({ message: "Internal server error" })
+        console.log("CONTROLLER ERROR:", err);
+
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 }
 export async function updateTicket(req, res) {

@@ -3,6 +3,12 @@ import supabase from "../config/supabaseClient.js";
 
 export async function createTicket(ticketData) {
     const { title, description, priority } = ticketData;
+    if (!title || !description || !priority) {
+        return {
+            status: 400,
+            message: "All fields requried"
+        }
+    }
     try {
         const { data: tickets, error: ticketCreationError } = await supabase.from("tickets").insert([ticketData]).select().single();
         console.log(ticketCreationError);
@@ -55,11 +61,13 @@ export async function getAllTickets(org_id) {
 
 }
 
-export async function getTicketbyId(ticket_id, org_id) {
+export async function getTicketbyId(ticketId, org_id) {
+    console.log("GET TICKET CONTROLLER HIT");
+
     try {
-        console.log("TICKET ID:", ticket_Id);
+        console.log("TICKET ID:", ticketId);
         console.log("USER ORG ID:", org_id);
-        const { data: ticket, error: ticketByIdError } = await supabase.from("tickets").select().eq("ticket_id", ticket_id).eq("org_id", org_id).single();
+        const { data: ticket, error: ticketByIdError } = await supabase.from("tickets").select().eq("ticket_id", ticketId).eq("org_id", org_id).single();
         if (ticketByIdError) {
             console.log("GET TICKET ERROR:", ticketByIdError);
 
@@ -77,7 +85,7 @@ export async function getTicketbyId(ticket_id, org_id) {
     } catch (err) {
         return {
             status: 500,
-            message: "Internal server error"
+            message: err.message
         }
     }
 
@@ -88,7 +96,14 @@ export async function updateTicket(ticketId, updatedData, org_id) {
         console.log("TICKET ID:", ticketId);
         console.log("USER ORG ID:", org_id);
         const { data: updateTicket, error: updateTicketError } = await supabase.from("tickets").update(updatedData).eq("ticket_id", ticketId).eq("org_id", org_id).select().single();
-
+        if (!updatedData.title ||
+            !updatedData.description ||
+            !updatedData.priority) {
+            return {
+                status: 404,
+                message: "All field requried"
+            }
+        }
         if (updateTicketError) {
             console.log("SUPABASE UPDATE ERROR:", updateTicketError);
 
@@ -115,26 +130,44 @@ export async function updateTicket(ticketId, updatedData, org_id) {
 
 export async function deleteTicket(ticketId, org_id) {
     try {
-        const { data: delTicket, error: delTicketError } = await supabase.from("tickets").delete().eq("ticket_id", ticketId).eq("org_id", org_id);
+        const {
+            data: delTicket,
+            error: delTicketError
+        } = await supabase
+            .from("tickets")
+            .delete()
+            .eq("ticket_id", ticketId)
+            .eq("org_id", org_id)
+            .select()
+            .single();
+
         if (delTicketError) {
+            if (delTicketError.code === "PGRST116") {
+                return {
+                    status: 404,
+                    message: "Ticket not found"
+                };
+            }
+
             return {
                 status: 500,
                 message: "Failed to delete ticket."
-            }
+            };
         }
+
         return {
             status: 200,
-            message: "Ticket deleted successfully",
-        }
+            message: "Ticket deleted successfully"
+        };
+
     } catch (err) {
         console.log(err);
 
         return {
             status: 500,
             message: "Internal server error"
-        }
+        };
     }
-
 }
 
 export async function assignTicket(info) {
