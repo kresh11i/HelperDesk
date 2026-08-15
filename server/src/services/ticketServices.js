@@ -1,16 +1,44 @@
 
 import supabase from "../config/supabaseClient.js";
+import allowedPriorities from "../constant/ticketPriorities.js";
+import { validate as isUUID } from "uuid";
 
 export async function createTicket(ticketData) {
     const { title, description, priority } = ticketData;
-    if (!title || !description || !priority) {
+
+    if (
+        !title || !description || !priority || !title.trim() || !description.trim()
+    ) {
         return {
             status: 400,
-            message: "All fields requried"
-        }
+            message: "All fields are required"
+        };
     }
+    if (
+        !allowedPriorities.includes(priority) ||
+        typeof priority !== "string"
+    ) {
+        return {
+            status: 400,
+            message: "Invalid priority"
+        };
+    }
+    const ticketToInsert = {
+        title: ticketData.title,
+        description: ticketData.description,
+        priority: ticketData.priority,
+        status: "Open",
+        created_by: ticketData.created_by,
+        org_id: ticketData.org_id
+    };
+
     try {
-        const { data: tickets, error: ticketCreationError } = await supabase.from("tickets").insert([ticketData]).select().single();
+        const { data: tickets, error: ticketCreationError } =
+            await supabase
+                .from("tickets")
+                .insert([ticketToInsert])
+                .select()
+                .single();
         console.log(ticketCreationError);
         if (ticketCreationError) {
             return {
@@ -67,14 +95,25 @@ export async function getTicketbyId(ticketId, org_id) {
     try {
         console.log("TICKET ID:", ticketId);
         console.log("USER ORG ID:", org_id);
+        if (!isUUID(ticketId)) {
+            return {
+                status: 400,
+                message: "Invalid ticket ID"
+            };
+        }
         const { data: ticket, error: ticketByIdError } = await supabase.from("tickets").select().eq("ticket_id", ticketId).eq("org_id", org_id).single();
         if (ticketByIdError) {
-            console.log("GET TICKET ERROR:", ticketByIdError);
+            if (ticketByIdError.code === "PGRST116") {
+                return {
+                    status: 404,
+                    message: "Ticket not found"
+                };
+            }
 
             return {
                 status: 500,
-                message: ticketByIdError.message
-            }
+                message: "Internal server error"
+            };
         }
         return {
             status: 200,
@@ -92,31 +131,58 @@ export async function getTicketbyId(ticketId, org_id) {
 }
 
 export async function updateTicket(ticketId, updatedData, org_id) {
+
     try {
         console.log("TICKET ID:", ticketId);
         console.log("USER ORG ID:", org_id);
-        const { data: updateTicket, error: updateTicketError } = await supabase.from("tickets").update(updatedData).eq("ticket_id", ticketId).eq("org_id", org_id).select().single();
-        if (!updatedData.title ||
-            !updatedData.description ||
-            !updatedData.priority) {
+        if (
+            !updatedData.title || !updatedData.description || !updatedData.priority || !updatedData.title.trim() || !updatedData.description.trim()
+        ) {
             return {
-                status: 404,
-                message: "All field requried"
+                status: 400,
+                message: "All fields are required"
+            };
+        }
+
+        if (!allowedPriorities.includes(updatedData.priority)) {
+            return {
+                status: 400,
+                message: "Invalid priority"
             }
         }
+
+        //extra security
+        const editableData = {
+            title: updatedData.title,
+            description: updatedData.description,
+            priority: updatedData.priority
+        }
+        if (!isUUID(ticketId)) {
+            return {
+                status: 400,
+                message: "Invalid ticket ID"
+            };
+        }
+        const { data: updateTicket, error: updateTicketError } = await supabase.from("tickets").update(editableData).eq("ticket_id", ticketId).eq("org_id", org_id).select().single();
         if (updateTicketError) {
-            console.log("SUPABASE UPDATE ERROR:", updateTicketError);
+            if (updateTicketError.code === "PGRST116") {
+                return {
+                    status: 404,
+                    message: "Ticket not found"
+                };
+            }
 
             return {
                 status: 500,
-                message: updateTicketError.message
-            }
+                message: "Failed to update ticket"
+            };
         }
+
         return {
             status: 200,
             message: "Ticket updated successfully",
             ticket: updateTicket
-        }
+        };
     } catch (err) {
         console.log(err.message);
 
@@ -130,6 +196,12 @@ export async function updateTicket(ticketId, updatedData, org_id) {
 
 export async function deleteTicket(ticketId, org_id) {
     try {
+        if (!isUUID(ticketId)) {
+            return {
+                status: 400,
+                message: "Invalid ticket ID"
+            };
+        }
         const {
             data: delTicket,
             error: delTicketError
@@ -174,6 +246,12 @@ export async function assignTicket(info) {
     try {
 
         // Find ticket
+        if (!isUUID(info.ticketId)) {
+            return {
+                status: 400,
+                message: "Invalid ticket ID"
+            };
+        }
         const { data: ticket, error: assignError } = await supabase
             .from("tickets")
             .select()
@@ -219,6 +297,12 @@ export async function assignTicket(info) {
                     message: "Agent user_id is required"
                 };
             }
+            if (ticket.assigned_to !== null) {
+                return {
+                    status: 400,
+                    message: "Ticket is already assigned"
+                };
+            }
 
             target = info.assignedTo;
 
@@ -257,7 +341,7 @@ export async function assignTicket(info) {
             .from("tickets")
             .update({
                 assigned_to: target,
-                status:"Assigned"
+                status: "Assigned"
             })
             .eq("ticket_id", info.ticketId)
             .eq("org_id", info.org_id)

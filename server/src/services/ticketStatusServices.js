@@ -1,7 +1,14 @@
 import supabase from "../config/supabaseClient.js";
+import { validate as isUUID } from "uuid";
 
 export async function updateTicketStatus(ticketId, newStatus, user) {
     try {
+        if (!isUUID(ticketId)) {
+            return {
+                status: 400,
+                message: "Invalid ticket ID"
+            };
+        }
         console.log("TICKET ID:", ticketId);
         console.log("NEW STATUS:", newStatus);
         console.log("USER:", user);
@@ -55,7 +62,8 @@ export async function updateTicketStatus(ticketId, newStatus, user) {
             "STATUS VALID:",
             allowedStatuses.includes(newStatus)
         );
-        const allowedNextStatuses = allowedTransitions[currentStatus];
+        const allowedNextStatuses = allowedTransitions[currentStatus] || [];
+
         if (!allowedNextStatuses.includes(newStatus)) {
             return {
                 status: 400,
@@ -64,9 +72,8 @@ export async function updateTicketStatus(ticketId, newStatus, user) {
         }
 
         const userRole = user.role;
-        if (user.role === 1 || user.role === 2) {
-            allowedTransitions
-        } else {
+
+        if (userRole !== 1 && userRole !== 2) {
             return {
                 status: 403,
                 message: "You are not allowed to change ticket status"
@@ -80,6 +87,40 @@ export async function updateTicketStatus(ticketId, newStatus, user) {
                     status: 403,
                     message: "You are not assigned to this ticket"
                 };
+            }
+        }
+        if (newStatus === "In Progress") {
+            if (data.assigned_to === null) {
+                return {
+                    status: 400,
+                    message: "Ticket must be assigned before moving to In Progress"
+                };
+            }
+        }
+        if (newStatus === "Resolved") {
+            if (data.assigned_to === null) {
+                return {
+                    status: 400,
+                    message: "Ticket must be assigned before moving to Resolved"
+                };
+            }
+        }
+        if (newStatus === "Closed") {
+            if (user.role !== 1) {
+                return {
+                    status: 403,
+                    message: "Only Admin can close tickets"
+                };
+
+            }
+        }
+        if (newStatus === "Reopened") {
+            if (user.role !== 1) {
+                return {
+                    status: 403,
+                    message: "Only Admin can reopen tickets"
+                };
+
             }
         }
         //update db
