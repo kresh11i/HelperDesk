@@ -37,8 +37,12 @@ function TicketDetails() {
   const handleStatusChange = async (newStatus) => {
     setUpdating(true);
     try {
-      await updateTicketStatus(id, newStatus);
-      setTicket({ ...ticket, status: newStatus });
+      const data = await updateTicketStatus(id, newStatus, ticket.status, user?.role);
+      if (data.status === 200 && data.data) {
+        setTicket(data.data);
+      } else {
+        setTicket({ ...ticket, status: newStatus });
+      }
     } catch (error) {
       console.error("Failed to update status:", error);
     } finally {
@@ -49,8 +53,12 @@ function TicketDetails() {
   const handleAssign = async () => {
     setUpdating(true);
     try {
-      await assignTicket(id, user.name);
-      setTicket({ ...ticket, assigned_to: user.name, status: 'assigned' });
+      const data = await assignTicket(id, user.user_id);
+      if (data.status === 200 && data.ticket) {
+        setTicket(data.ticket);
+      } else {
+        setTicket({ ...ticket, assigned_to: user.name, status: 'assigned' });
+      }
     } catch (error) {
       console.error("Failed to assign ticket:", error);
     } finally {
@@ -96,7 +104,7 @@ function TicketDetails() {
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-sm font-medium text-neutral-400">#{String(ticket.ticket_id).slice(-4)}</span>
                   <Badge variant={ticket.priority?.toLowerCase() || 'medium'} className="capitalize">{ticket.priority}</Badge>
-                  <Badge variant={ticket.status?.toLowerCase() === 'open' ? 'open' : (ticket.status?.toLowerCase() === 'closed' ? 'resolved' : 'inProgress')} className="capitalize">
+                  <Badge variant={ticket.status?.toLowerCase() === 'open' ? 'open' : (ticket.status?.toLowerCase() === 'closed' || ticket.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')} className="capitalize">
                     {ticket.status}
                   </Badge>
                 </div>
@@ -148,7 +156,7 @@ function TicketDetails() {
                 <span className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Manage Status</span>
                 <div className="flex flex-col gap-2 mt-2">
                   <select 
-                    value={ticket.status?.toLowerCase()} 
+                    value={ticket.status?.toLowerCase() === 'resolved' ? 'closed' : ticket.status?.toLowerCase()} 
                     onChange={(e) => handleStatusChange(e.target.value)}
                     disabled={updating}
                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30 capitalize"

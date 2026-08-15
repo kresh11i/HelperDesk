@@ -66,7 +66,10 @@ export async function createTicket(ticketData) {
 
 export async function getAllTickets(org_id) {
     try {
-        const { data: getTickets, error: getTicketsError } = await supabase.from("tickets").select().eq("org_id", org_id)
+        const { data: getTickets, error: getTicketsError } = await supabase
+            .from("tickets")
+            .select("*, assigned_user:users!assigned_to(name)")
+            .eq("org_id", org_id);
         if (getTicketsError) {
             return {
                 status: 500,
@@ -76,7 +79,13 @@ export async function getAllTickets(org_id) {
         return {
             status: 200,
             message: "tickets fetched successfully",
-            tickets: getTickets
+            tickets: getTickets ? getTickets.map(t => {
+                const { assigned_user, ...rest } = t;
+                return {
+                    ...rest,
+                    assigned_to: assigned_user?.name || null
+                };
+            }) : []
         }
     } catch (err) {
         console.log(err);
@@ -101,7 +110,12 @@ export async function getTicketbyId(ticketId, org_id) {
                 message: "Invalid ticket ID"
             };
         }
-        const { data: ticket, error: ticketByIdError } = await supabase.from("tickets").select().eq("ticket_id", ticketId).eq("org_id", org_id).single();
+        const { data: ticket, error: ticketByIdError } = await supabase
+            .from("tickets")
+            .select("*, assigned_user:users!assigned_to(name)")
+            .eq("ticket_id", ticketId)
+            .eq("org_id", org_id)
+            .single();
         if (ticketByIdError) {
             if (ticketByIdError.code === "PGRST116") {
                 return {
@@ -115,10 +129,18 @@ export async function getTicketbyId(ticketId, org_id) {
                 message: "Internal server error"
             };
         }
+        let mappedTicket = null;
+        if (ticket) {
+            const { assigned_user, ...rest } = ticket;
+            mappedTicket = {
+                ...rest,
+                assigned_to: assigned_user?.name || null
+            };
+        }
         return {
             status: 200,
             message: "Ticket fetched successfully",
-            ticket: ticket,
+            ticket: mappedTicket,
         }
 
     } catch (err) {
@@ -345,7 +367,7 @@ export async function assignTicket(info) {
             })
             .eq("ticket_id", info.ticketId)
             .eq("org_id", info.org_id)
-            .select()
+            .select("*, assigned_user:users!assigned_to(name)")
             .single();
 
         if (updateError) {
@@ -355,10 +377,19 @@ export async function assignTicket(info) {
             };
         }
 
+        let mappedTicket = null;
+        if (updatedTicket) {
+            const { assigned_user, ...rest } = updatedTicket;
+            mappedTicket = {
+                ...rest,
+                assigned_to: assigned_user?.name || null
+            };
+        }
+
         return {
             status: 200,
             message: "Ticket assigned successfully",
-            ticket: updatedTicket
+            ticket: mappedTicket
         };
 
     } catch (err) {

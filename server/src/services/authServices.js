@@ -169,7 +169,8 @@ export async function login(data) {
         user_id: userData.user_id,
         org_id: userData.org_id,
         email: userData.email,
-        role: userData.role
+        role: userData.role,
+        name: userData.name
     }, process.env.JWT_SECRET, {
         expiresIn: "1d",
     })

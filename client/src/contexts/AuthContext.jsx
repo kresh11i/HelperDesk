@@ -3,6 +3,20 @@ import api from '../services/api';
 
 export const AuthContext = createContext(null);
 
+const decodeToken = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Failed to decode JWT token:", e);
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -22,34 +36,51 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    // MOCK LOGIN FOR UI TESTING
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const dummyToken = "mock_jwt_token_123";
-        const dummyUser = { 
-          user_id: "u_1", 
-          org_id: "org_1", 
-          role: 1, 
-          email: email, 
-          name: email.split('@')[0].toUpperCase() 
-        };
-        
-        setToken(dummyToken);
-        setUser(dummyUser);
-        localStorage.setItem('token', dummyToken);
-        localStorage.setItem('user', JSON.stringify(dummyUser));
-        resolve({ success: true });
-      }, 1000); // simulate 1s network delay
-    });
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      // The backend returns { status: 200, message: "...", token: "..." }
+      if (response.data && response.data.token) {
+        const tokenVal = response.data.token;
+        const decoded = decodeToken(tokenVal);
+        if (decoded) {
+          // Normalise name if it is missing in the payload
+          const userObj = {
+            ...decoded,
+            name: decoded.name || email.split('@')[0].toUpperCase()
+          };
+          setToken(tokenVal);
+          setUser(userObj);
+          localStorage.setItem('token', tokenVal);
+          localStorage.setItem('user', JSON.stringify(userObj));
+          return { success: true };
+        }
+      }
+      return { success: false, message: response.data?.message || 'Login failed' };
+    } catch (error) {
+      console.error("Login request failed:", error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || error.message || 'Login failed' 
+      };
+    }
   };
 
   const register = async (organizationName, name, email, password) => {
-    // MOCK REGISTER FOR UI TESTING
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true });
-      }, 1000);
-    });
+    try {
+      const response = await api.post('/auth/register', { organizationName, name, email, password });
+      // The backend returns { status: 201, message: "...", data: [...] }
+      const status = response.status || response.data?.status;
+      if (status === 201 || status === 200) {
+        return { success: true, message: response.data.message || 'Registration successful' };
+      }
+      return { success: false, message: response.data?.message || 'Registration failed' };
+    } catch (error) {
+      console.error("Registration request failed:", error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || error.message || 'Registration failed' 
+      };
+    }
   };
 
   const logout = () => {
