@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import healthRoutes from "./routes/healthRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import ticketRoutes from "./routes/ticketRoutes.js"
+import commentRoutes from "./routes/commentRoutes.js";
 import { authenticateUser, authorizeRole } from './middleware/authMiddleware.js';
 
 
@@ -25,8 +26,9 @@ app.use(morgan('dev'))
 
 //usage of routes
 app.use("/auth", authRoutes);
-app.use("/health", authenticateUser ,authorizeRole(3), healthRoutes);
+app.use("/health", authenticateUser, authorizeRole(3), healthRoutes);
 app.use("/tickets", authenticateUser, ticketRoutes);
+app.use("/tickets", authenticateUser, commentRoutes);
 
 
 export default app;
