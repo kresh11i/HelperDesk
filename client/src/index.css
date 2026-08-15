@@ -1,1 +1,77 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    --bg-dark: #0a0a0a;
+    --text-primary: #ffffff;
+    --text-secondary: #a3a3a3;
+    
+    /* Glass Level 1 - Base */
+    --glass-1-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+    --glass-1-border: rgba(255, 255, 255, 0.08);
+    --glass-1-border-highlight: rgba(255, 255, 255, 0.15);
+    --glass-1-blur: blur(16px);
+    
+    /* Glass Level 2 - Elevated */
+    --glass-2-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+    --glass-2-border: rgba(255, 255, 255, 0.12);
+    --glass-2-border-highlight: rgba(255, 255, 255, 0.25);
+    --glass-2-blur: blur(24px);
+    
+    /* Glass Level 3 - Floating */
+    --glass-3-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%);
+    --glass-3-border: rgba(255, 255, 255, 0.15);
+    --glass-3-border-highlight: rgba(255, 255, 255, 0.35);
+    --glass-3-blur: blur(32px);
+  }
+
+  body {
+    @apply bg-[#0a0a0a] text-white font-sans antialiased selection:bg-white/20 selection:text-white;
+    /* Soft, large background glows so the glass has texture to blur, without sharp circles */
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 50vw),
+      radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.03) 0%, transparent 50vw),
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 70vw);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .glass-1 {
+    background: var(--glass-1-bg);
+    border: 1px solid var(--glass-1-border);
+    border-top-color: var(--glass-1-border-highlight);
+    border-left-color: var(--glass-1-border-highlight);
+    backdrop-filter: var(--glass-1-blur);
+    -webkit-backdrop-filter: var(--glass-1-blur);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  .glass-2 {
+    background: var(--glass-2-bg);
+    border: 1px solid var(--glass-2-border);
+    border-top-color: var(--glass-2-border-highlight);
+    border-left-color: var(--glass-2-border-highlight);
+    backdrop-filter: var(--glass-2-blur);
+    -webkit-backdrop-filter: var(--glass-2-blur);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  }
+  
+  .glass-3 {
+    background: var(--glass-3-bg);
+    border: 1px solid var(--glass-3-border);
+    border-top-color: var(--glass-3-border-highlight);
+    border-left-color: var(--glass-3-border-highlight);
+    backdrop-filter: var(--glass-3-blur);
+    -webkit-backdrop-filter: var(--glass-3-blur);
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400;
+  }
+}

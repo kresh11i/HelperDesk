@@ -1,28 +1,9 @@
-import { useEffect, useState } from "react";
-import api from "../services/api";
+import React from "react";
+import { Navigate } from "react-router-dom";
 
 const Home = () => {
-  const [message, setMessage] = useState("Connecting to backend...");
-
-  useEffect(() => {
-    const serverCheck = async () => {
-      try {
-        const res = await api.get("/health");
-        setMessage(res.data.message);
-      } catch (err) {
-        console.error(err);
-        setMessage("Backend connection failed ❌");
-      }
-    };
-
-    serverCheck();
-  }, []);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-3xl font-bold">{message}</h1>
-    </div>
-  );
+  // Redirect to login page for the frontend UI test
+  return <Navigate to="/login" replace />;
 };
 
 export default Home;
