@@ -1,0 +1,164 @@
+{
+  "info": {
+    "_postman_id": "9b6933ec-c663-4eb4-b6d9-344d0b4aeeb4",
+    "name": "helperdekv1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44508807"
+  },
+  "item": [
+    {
+      "name": "register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"organizationName\": \"Brand New Test Org\",\r\n  \"name\": \"New User\",\r\n  \"email\": \"newuser@test.com\",\r\n  \"password\": \"User@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create ticket",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/tickets/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "tickets",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get tickets",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/tickets/",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "tickets",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ticket by id",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "update ticket",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/tickets/1748a052-7233-4ed2-a1ad-7588e918f697",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "tickets",
+            "1748a052-7233-4ed2-a1ad-7588e918f697"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete ticket",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/tickets/1748a052-7233-4ed2-a1ad-7588e918f697",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "tickets",
+            "1748a052-7233-4ed2-a1ad-7588e918f697"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
