@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Ticket, Plus, User, Users } from 'lucide-react';
+import { LayoutDashboard, Ticket, Plus, User, Users, BookOpen } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
 import { AuthContext } from '../../contexts/AuthContext';
 
@@ -15,6 +15,7 @@ const BottomNav = () => {
     isEndUser
       ? { icon: Plus, label: 'Create', path: '/create', primary: true }
       : { icon: Users, label: 'Team', path: '/team', primary: true },
+    { icon: BookOpen, label: 'KB', path: '/knowledge-base' },
     { icon: User, label: 'Account', path: '/account' },
   ];
 
