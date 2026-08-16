@@ -1,21 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Ticket, Plus, User } from 'lucide-react';
+import { LayoutDashboard, Ticket, Plus, User, Users } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const BottomNav = () => {
+  const { user } = useContext(AuthContext);
+  
+  const isEndUser = user?.role === 3;
+
   const navItems = [
     { icon: LayoutDashboard, label: 'Home', path: '/dashboard' },
     { icon: Ticket, label: 'Tickets', path: '/tickets' },
-    { icon: Plus, label: 'Create', path: '/create', primary: true },
+    isEndUser
+      ? { icon: Plus, label: 'Create', path: '/create', primary: true }
+      : { icon: Users, label: 'Team', path: '/team', primary: true },
     { icon: User, label: 'Account', path: '/account' },
   ];
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4 group">
+    <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4">
       <GlassCard 
         level={3} 
-        className="flex items-center justify-between px-2 py-1.5 rounded-full w-full max-w-sm scale-90 group-hover:scale-100 transition-transform duration-300 origin-bottom"
+        className="flex items-center justify-between px-2 py-1.5 rounded-full w-full max-w-sm scale-90 hover:scale-100 transition-transform duration-300 origin-bottom"
       >
         {navItems.map((item) => (
           <NavLink

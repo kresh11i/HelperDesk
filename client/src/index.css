@@ -49,6 +49,14 @@
     backdrop-filter: var(--glass-1-blur);
     -webkit-backdrop-filter: var(--glass-1-blur);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-1:hover {
+    border-color: var(--glass-1-border-highlight);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
+    transform: translateY(-2px);
   }
   
   .glass-2 {
@@ -59,6 +67,14 @@
     backdrop-filter: var(--glass-2-blur);
     -webkit-backdrop-filter: var(--glass-2-blur);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-2:hover {
+    border-color: var(--glass-2-border-highlight);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%);
+    transform: translateY(-2px);
   }
   
   .glass-3 {
@@ -69,6 +85,14 @@
     backdrop-filter: var(--glass-3-blur);
     -webkit-backdrop-filter: var(--glass-3-blur);
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-3:hover {
+    border-color: var(--glass-3-border-highlight);
+    box-shadow: 0 16px 56px 0 rgba(0, 0, 0, 0.65);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
+    transform: translateY(-2px);
   }
 
   .text-gradient {

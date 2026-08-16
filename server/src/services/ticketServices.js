@@ -301,7 +301,7 @@ export async function assignTicket(info) {
         // Agent self-assignment
         if (info.role === 2) {
 
-            if (ticket.assigned_to !== null) {
+            if (ticket.assigned_to !== null && ticket.assigned_to !== undefined) {
                 return {
                     status: 400,
                     message: "Ticket is already assigned"
@@ -319,7 +319,7 @@ export async function assignTicket(info) {
                     message: "Agent user_id is required"
                 };
             }
-            if (ticket.assigned_to !== null) {
+            if (ticket.assigned_to !== null && ticket.assigned_to !== undefined) {
                 return {
                     status: 400,
                     message: "Ticket is already assigned"
@@ -395,6 +395,35 @@ export async function assignTicket(info) {
     } catch (err) {
         console.log(err);
 
+        return {
+            status: 500,
+            message: "Internal server error"
+        };
+    }
+}
+
+export async function getAgents(org_id) {
+    try {
+        const { data: agents, error } = await supabase
+            .from("users")
+            .select("user_id, name, email, role")
+            .eq("org_id", org_id)
+            .eq("role", 2); // role 2 is AGENT
+
+        if (error) {
+            return {
+                status: 500,
+                message: "Failed to fetch agents"
+            };
+        }
+
+        return {
+            status: 200,
+            message: "Agents fetched successfully",
+            agents
+        };
+    } catch (err) {
+        console.log(err);
         return {
             status: 500,
             message: "Internal server error"

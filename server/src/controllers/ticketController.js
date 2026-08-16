@@ -135,3 +135,15 @@ export async function updateTicketStatus(req, res) {
     }
 
 }
+
+export async function getAgents(req, res) {
+    try {
+        const result = await ticketServices.getAgents(req.user.org_id);
+        return res.status(result.status).json(result);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}

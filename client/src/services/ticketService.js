@@ -60,3 +60,18 @@ export const updateTicketStatus = async (id, status, currentStatus, userRole) =>
   const response = await api.patch(`/tickets/${id}/status`, { status: backendStatus });
   return response.data;
 };
+
+export const fetchComments = async (ticketId) => {
+  const response = await api.get(`/tickets/${ticketId}/comments`);
+  return response.data;
+};
+
+export const createComment = async (ticketId, commentText) => {
+  const response = await api.post(`/tickets/${ticketId}/comments`, { comment: commentText });
+  return response.data;
+};
+
+export const fetchAgents = async () => {
+  const response = await api.get('/tickets/agents/list');
+  return response.data;
+};

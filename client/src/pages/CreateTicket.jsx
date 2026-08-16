@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../components/ui/GlassCard';
 import Button from '../components/ui/Button';
 import { ArrowLeft } from 'lucide-react';
 import { createTicket } from '../services/ticketService';
+import { ToastContext } from '../contexts/ToastContext';
 
 function CreateTicket() {
   const navigate = useNavigate();
+  const { showToast } = useContext(ToastContext);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('Medium');
@@ -20,6 +22,7 @@ function CreateTicket() {
     try {
       const result = await createTicket({ title, description, priority });
       if (result.status === 201 || result.status === 200) {
+        showToast('Ticket created successfully!', 'success');
         navigate('/tickets');
       } else {
         setError(result.message || 'Failed to create ticket');
