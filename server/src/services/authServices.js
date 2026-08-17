@@ -25,6 +25,7 @@ export async function register(data) {
             .eq("email", email);
 
         if (userCheckError) {
+            console.error("Database userCheckError details:", userCheckError);
             return {
                 status: 500,
                 message: "Database error",
@@ -54,6 +55,7 @@ export async function register(data) {
         .maybeSingle();
 
     if (orgCheckError) {
+        console.error("Database orgCheckError details:", orgCheckError);
         return {
             status: 500,
             message: "Organization lookup failed",
@@ -77,6 +79,7 @@ export async function register(data) {
             .single();
 
         if (orgCreateError) {
+            console.error("Database orgCreateError details:", orgCreateError);
             return {
                 status: 500,
                 message: "Organization creation failed",
@@ -108,6 +111,7 @@ export async function register(data) {
 
         // ✅ MODIFIED: Check user insertion
         if (userInsertError) {
+            console.error("Database userInsertError details:", userInsertError);
             return {
                 status: 500,
                 message: "User creation failed",
@@ -122,7 +126,7 @@ export async function register(data) {
         };
     } catch (error) {
         console.log(error);
-        
+
         // ✅ MODIFIED: Catch block
         return {
             status: 500,

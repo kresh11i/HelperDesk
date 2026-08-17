@@ -1,0 +1,190 @@
+{
+  "organizations": [
+    {
+      "id": "org-123",
+      "name": "Demo Org"
+    },
+    {
+      "name": "Acme Corp",
+      "id": "5b27de72-df48-47d8-ba30-043b8582d65f"
+    },
+    {
+      "name": "org-123",
+      "id": "48bce1bb-7385-4715-88cf-03872f0f2e3f"
+    }
+  ],
+  "users": [
+    {
+      "user_id": "user-123",
+      "org_id": "org-123",
+      "name": "Demo User",
+      "email": "user@demo.com",
+      "password": "$2b$10$fZh8GTOR/vwBhqlbN0X93uR.mfn1hopMALpuKKqwamtTCGez1JsYu",
+      "role": 3
+    },
+    {
+      "user_id": "agent-123",
+      "org_id": "org-123",
+      "name": "Demo Agent",
+      "email": "agent@demo.com",
+      "password": "$2b$10$fZh8GTOR/vwBhqlbN0X93uR.mfn1hopMALpuKKqwamtTCGez1JsYu",
+      "role": 2
+    },
+    {
+      "user_id": "admin-123",
+      "org_id": "org-123",
+      "name": "Demo Admin",
+      "email": "admin@demo.com",
+      "password": "$2b$10$fZh8GTOR/vwBhqlbN0X93uR.mfn1hopMALpuKKqwamtTCGez1JsYu",
+      "role": 1
+    },
+    {
+      "org_id": "5b27de72-df48-47d8-ba30-043b8582d65f",
+      "name": "Alice Vance",
+      "email": "alice@acme.com",
+      "password": "$2b$10$QspAayAAGxWNS7sJzvJiL.9URWLugP9drSaHo1516E4QqSi5X5KCm",
+      "role": 3,
+      "user_id": "73345211-d175-430d-9ad6-ffaaa7d714c2"
+    },
+    {
+      "org_id": "48bce1bb-7385-4715-88cf-03872f0f2e3f",
+      "name": "Test User 2",
+      "email": "testuser2@demo.com",
+      "password": "$2b$10$yiPqKxlzX9kMy9i2AtqJNus29ahhGufVr6qc47yvzBnLjT1DBzpqC",
+      "role": 3,
+      "user_id": "d7ad0335-0139-4296-bcbb-f94b979e129d"
+    }
+  ],
+  "tickets": [
+    {
+      "ticket_id": "5d87f321-5711-4be2-a0af-7bc2658fd045",
+      "title": "Cannot access printer",
+      "description": "The office printer on the second floor is offline and showing an error message.",
+      "priority": "High",
+      "status": "Assigned",
+      "created_by": "user-123",
+      "assigned_to": "agent-123",
+      "org_id": "org-123",
+      "created_at": "2026-08-15T12:00:00Z"
+    },
+    {
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "title": "Software license expired",
+      "description": "My development IDE license has expired, need a new key.",
+      "priority": "Medium",
+      "status": "Resolved",
+      "created_by": "user-123",
+      "assigned_to": "agent-123",
+      "org_id": "org-123",
+      "created_at": "2026-08-15T08:00:00Z"
+    },
+    {
+      "title": "Office WiFi is extremely slow",
+      "description": "We are unable to download dependencies or run dev tools smoothly. Please check the access point near the workspace.",
+      "priority": "High",
+      "status": "Assigned",
+      "created_by": "user-123",
+      "org_id": "org-123",
+      "ticket_id": "bf53acfa-c036-4c64-b1c0-aeff96bc3701",
+      "created_at": "2026-08-16T03:58:05.624Z",
+      "assigned_to": "agent-123"
+    },
+    {
+      "title": "Day 8 Assignment Test",
+      "description": "Testing agent queue and assignment",
+      "priority": "Medium",
+      "status": "Assigned",
+      "created_by": "user-123",
+      "org_id": "org-123",
+      "ticket_id": "fae53ce9-98e7-43d1-9c11-15cb47b81061",
+      "created_at": "2026-08-16T05:04:45.128Z",
+      "assigned_to": "agent-123"
+    },
+    {
+      "title": "Day 9 Access Control Test",
+      "description": "Testing cross-user ticket access",
+      "priority": "Medium",
+      "status": "Open",
+      "created_by": "d7ad0335-0139-4296-bcbb-f94b979e129d",
+      "org_id": "48bce1bb-7385-4715-88cf-03872f0f2e3f",
+      "ticket_id": "f4dbed75-e9f0-4382-b5e9-8dc95113b255",
+      "created_at": "2026-08-16T05:46:45.778Z"
+    },
+    {
+      "title": "test creation",
+      "description": "creation and validation success test",
+      "priority": "Medium",
+      "status": "Open",
+      "created_by": "user-123",
+      "org_id": "org-123",
+      "ticket_id": "19e8cd35-effc-4bff-a782-fb1e4ab50f0b",
+      "created_at": "2026-08-16T07:34:13.532Z"
+    }
+  ],
+  "comments": [
+    {
+      "comment_id": "33333333-3333-3333-3333-333333333333",
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "user_id": "agent-123",
+      "org_id": "org-123",
+      "comment": "I've requested a license from the procurement team. Will update once I get the key.",
+      "created_at": "2026-08-15T08:30:00Z"
+    },
+    {
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "user_id": "user-123",
+      "org_id": "org-123",
+      "comment": "ok",
+      "comment_id": "918b7613-8e27-4298-be15-4a76d43be9ba",
+      "created_at": "2026-08-16T04:42:47.000Z"
+    },
+    {
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "user_id": "user-123",
+      "org_id": "org-123",
+      "comment": "Day 9 frontend conversation test",
+      "comment_id": "547f4b82-6fde-469b-b09a-d1c28cab9cd6",
+      "created_at": "2026-08-16T05:31:53.308Z"
+    },
+    {
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "user_id": "agent-123",
+      "org_id": "org-123",
+      "comment": "Day 9 agent reply test",
+      "comment_id": "80549fbb-6c03-4259-af01-8005710bc822",
+      "created_at": "2026-08-16T05:39:22.281Z"
+    },
+    {
+      "ticket_id": "bf53acfa-c036-4c64-b1c0-aeff96bc3701",
+      "user_id": "agent-123",
+      "org_id": "org-123",
+      "comment": "Day 9 assigned agent comment test",
+      "comment_id": "b05f10ad-9b91-4fb5-b8c8-b7932538e1f9",
+      "created_at": "2026-08-16T05:52:56.169Z"
+    },
+    {
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "user_id": "admin-123",
+      "org_id": "org-123",
+      "comment": "Day 9 admin comment test",
+      "comment_id": "80927230-c33e-4b86-8da6-b4b444f63b2b",
+      "created_at": "2026-08-16T05:53:58.613Z"
+    },
+    {
+      "ticket_id": "1d668e3c-76a0-4bfb-ba89-5380f8d5ab35",
+      "user_id": "user-123",
+      "org_id": "org-123",
+      "comment": "Day 9 customer comment test",
+      "comment_id": "1df3bb54-bb6c-4988-8cb5-70d29d9acd28",
+      "created_at": "2026-08-16T05:54:55.168Z"
+    },
+    {
+      "ticket_id": "19e8cd35-effc-4bff-a782-fb1e4ab50f0b",
+      "user_id": "user-123",
+      "org_id": "org-123",
+      "comment": "message test",
+      "comment_id": "304bd76d-a5d8-42a4-b18b-4122f013f437",
+      "created_at": "2026-08-16T07:35:27.059Z"
+    }
+  ]
+}
