@@ -2,6 +2,7 @@
 import supabase from "../config/supabaseClient.js";
 import allowedPriorities from "../constant/ticketPriorities.js";
 import { validate as isUUID } from "uuid";
+import roles from "../constant/roles.js"
 
 export async function createTicket(ticketData) {
     const { title, description, priority } = ticketData;
@@ -98,24 +99,34 @@ export async function getAllTickets(org_id) {
 
 }
 
-export async function getTicketbyId(ticketId, org_id) {
-    console.log("GET TICKET CONTROLLER HIT");
+export async function getTicketbyId(
+    ticketId,
+    userId,
+    userOrgId,
+    userRole
+) {
+    console.log("GET TICKET SERVICE HIT");
 
     try {
         console.log("TICKET ID:", ticketId);
-        console.log("USER ORG ID:", org_id);
+        console.log("USER ID:", userId);
+        console.log("USER ORG ID:", userOrgId);
+        console.log("USER ROLE:", userRole);
+
         if (!isUUID(ticketId)) {
             return {
                 status: 400,
                 message: "Invalid ticket ID"
             };
         }
+
         const { data: ticket, error: ticketByIdError } = await supabase
             .from("tickets")
             .select("*, assigned_user:users!assigned_to(name)")
             .eq("ticket_id", ticketId)
-            .eq("org_id", org_id)
+            .eq("org_id", userOrgId)
             .single();
+
         if (ticketByIdError) {
             if (ticketByIdError.code === "PGRST116") {
                 return {
@@ -129,27 +140,41 @@ export async function getTicketbyId(ticketId, org_id) {
                 message: "Internal server error"
             };
         }
+
+        // Role 3 = User
+        // Users can only view tickets they created.
+        if (userRole === 3 && ticket.created_by !== userId) {
+            return {
+                status: 403,
+                message: "You do not have permission to view this ticket"
+            };
+        }
+
         let mappedTicket = null;
+
         if (ticket) {
             const { assigned_user, ...rest } = ticket;
+
             mappedTicket = {
                 ...rest,
                 assigned_to: assigned_user?.name || null
             };
         }
+
         return {
             status: 200,
             message: "Ticket fetched successfully",
-            ticket: mappedTicket,
-        }
+            ticket: mappedTicket
+        };
 
     } catch (err) {
+        console.error("GET TICKET ERROR:", err);
+
         return {
             status: 500,
             message: err.message
-        }
+        };
     }
-
 }
 
 export async function updateTicket(ticketId, updatedData, org_id) {

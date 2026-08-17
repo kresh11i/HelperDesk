@@ -44,13 +44,18 @@ export async function getTicketbyId(req, res) {
         console.log("USER:", req.user);
 
         const ticketId = req.params.id;
+        const userId = req.user.user_id;
+        const userOrgId = req.user.org_id
+        const userRole = req.user.role
 
         console.log("TICKET ID FROM PARAM:", ticketId);
         console.log("ORG ID FROM USER:", req.user.org_id);
 
         const result = await ticketServices.getTicketbyId(
             ticketId,
-            req.user.org_id
+            userId,
+            userOrgId,
+            userRole,
         );
 
         console.log("SERVICE RESULT:", result);
