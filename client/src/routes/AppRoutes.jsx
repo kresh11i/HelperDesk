@@ -28,7 +28,7 @@ function AppRoutes() {
             {/* Dashboard Routes wrapped in Layout */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><Dashboard /></DashboardLayout></ProtectedRoute>} />
             <Route path="/tickets" element={<ProtectedRoute><DashboardLayout><Tickets /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/tickets/:id" element={<ProtectedRoute><DashboardLayout><TicketDetails /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/tickets/:id" element={<ProtectedRoute><DashboardLayout><Tickets /></DashboardLayout></ProtectedRoute>} />
             <Route path="/create" element={<ProtectedRoute><DashboardLayout><CreateTicket /></DashboardLayout></ProtectedRoute>} />
             <Route path="/knowledge-base" element={<ProtectedRoute><DashboardLayout><KnowledgeBase /></DashboardLayout></ProtectedRoute>} />
             <Route path="/team" element={<ProtectedRoute><DashboardLayout><Team /></DashboardLayout></ProtectedRoute>} />
