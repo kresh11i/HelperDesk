@@ -176,7 +176,7 @@ export async function login(data) {
         role: userData.role,
         name: userData.name
     }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "1h",
     })
     return {
         status: 200,
