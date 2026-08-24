@@ -65,12 +65,18 @@ export async function createTicket(ticketData) {
 
 }
 
-export async function getAllTickets(org_id) {
+export async function getAllTickets(org_id, user_id, role) {
     try {
-        const { data: getTickets, error: getTicketsError } = await supabase
+        let query = supabase
             .from("tickets")
             .select("*, assigned_user:users!assigned_to(name)")
             .eq("org_id", org_id);
+
+        if (role === 3) {
+            query = query.eq("created_by", user_id);
+        }
+
+        const { data: getTickets, error: getTicketsError } = await query;
         if (getTicketsError) {
             return {
                 status: 500,
@@ -177,7 +183,7 @@ export async function getTicketbyId(
     }
 }
 
-export async function updateTicket(ticketId, updatedData, org_id) {
+export async function updateTicket(ticketId, updatedData, org_id, user_id, role) {
 
     try {
         console.log("TICKET ID:", ticketId);
@@ -210,12 +216,18 @@ export async function updateTicket(ticketId, updatedData, org_id) {
                 message: "Invalid ticket ID"
             };
         }
-        const { data: updateTicket, error: updateTicketError } = await supabase.from("tickets").update(editableData).eq("ticket_id", ticketId).eq("org_id", org_id).select().single();
+        
+        let query = supabase.from("tickets").update(editableData).eq("ticket_id", ticketId).eq("org_id", org_id);
+        if (role === 3) {
+            query = query.eq("created_by", user_id);
+        }
+
+        const { data: updateTicket, error: updateTicketError } = await query.select().single();
         if (updateTicketError) {
             if (updateTicketError.code === "PGRST116") {
                 return {
                     status: 404,
-                    message: "Ticket not found"
+                    message: "Ticket not found or unauthorized"
                 };
             }
 
@@ -241,8 +253,15 @@ export async function updateTicket(ticketId, updatedData, org_id) {
 
 }
 
-export async function deleteTicket(ticketId, org_id) {
+export async function deleteTicket(ticketId, org_id, role) {
     try {
+        if (role !== 1) {
+            return {
+                status: 403,
+                message: "Only administrators can delete tickets"
+            };
+        }
+
         if (!isUUID(ticketId)) {
             return {
                 status: 400,

@@ -4,7 +4,8 @@ export const healthChecker = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("organizations")
-      .select("*");
+      .select("id")
+      .limit(1);
 
     if (error) {
       return res.status(500).json({
@@ -17,7 +18,6 @@ export const healthChecker = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Database connected successfully",
-      data,
     });
   } catch (err) {
     return res.status(500).json({

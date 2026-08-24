@@ -11,6 +11,8 @@ import { authenticateUser, authorizeRole } from './middleware/authMiddleware.js'
 
 
 
+import orgRoutes from "./routes/orgRoutes.js";
+
 const app = express();
 const corsPolicy = {
 
@@ -32,6 +34,6 @@ app.use("/auth", authRoutes);
 app.use("/health", authenticateUser, authorizeRole(3), healthRoutes);
 app.use("/tickets", authenticateUser, ticketRoutes);
 app.use("/tickets", authenticateUser, commentRoutes);
-
+app.use("/org", orgRoutes);
 
 export default app;

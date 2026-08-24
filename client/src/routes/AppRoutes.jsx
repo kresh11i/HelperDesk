@@ -13,6 +13,7 @@ import KnowledgeBase from "../pages/KnowledgeBase";
 import Team from "../pages/Team";
 import Account from "../pages/Account";
 import NotFound from "../pages/NotFound";
+import AcceptInvite from "../pages/AcceptInvite";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 function AppRoutes() {
@@ -24,6 +25,7 @@ function AppRoutes() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/invite/:token" element={<AcceptInvite />} />
             
             {/* Dashboard Routes wrapped in Layout */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><Dashboard /></DashboardLayout></ProtectedRoute>} />

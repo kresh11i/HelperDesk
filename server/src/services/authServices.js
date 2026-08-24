@@ -63,38 +63,42 @@ export async function register(data) {
     }
 
     // Create organization only if it doesn't exist
-    let orgId;
-
+    // V1 SECURITY FIX: Do not allow joining an existing org via registration.
+    // Must be invited to join an existing organization.
     if (existingOrg) {
-        orgId = existingOrg.id;
-    } else {
-        const { data: newOrg, error: orgCreateError } = await supabase
-            .from("organizations")
-            .insert([
-                {
-                    name: organizationName,
-                },
-            ])
-            .select("id")
-            .single();
-
-        if (orgCreateError) {
-            console.error("Database orgCreateError details:", orgCreateError);
-            return {
-                status: 500,
-                message: "Organization creation failed",
-            };
-        }
-
-        orgId = newOrg.id;
+        return {
+            status: 400,
+            message: "Organization already exists. You must be invited to join an existing organization.",
+        };
     }
+
+    const { data: newOrg, error: orgCreateError } = await supabase
+        .from("organizations")
+        .insert([
+            {
+                name: organizationName,
+            },
+        ])
+        .select("id")
+        .single();
+
+    if (orgCreateError) {
+        console.error("Database orgCreateError details:", orgCreateError);
+        return {
+            status: 500,
+            message: "Organization creation failed",
+        };
+    }
+
+    const orgId = newOrg.id;
 
     // Hash password
     const hashedPass = await bcrypt.hash(password, 10);
 
     // Create user
     try {
-        const userRole = 3;
+        // V1 SECURITY FIX: The creator of the organization becomes the ADMIN (role 1)
+        const userRole = 1;
         // ✅ MODIFIED: Renamed data -> newUser, error -> userInsertError
         const { data: newUser, error: userInsertError } = await supabase
             .from("users")

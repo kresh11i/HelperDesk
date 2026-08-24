@@ -52,14 +52,9 @@ export async function createComment(ticketId, comment, user) {
             // Allowed
         }
 
-        // Agent can comment only on tickets assigned to them
+        // Agent can comment on any ticket in their organization
         else if (user.role === roles.AGENT) {
-            if (ticket.assigned_to !== user.user_id) {
-                return {
-                    status: 403,
-                    message: "You are not assigned to this ticket"
-                };
-            }
+            // Allowed
         }
 
         // User can comment only on tickets created by them
@@ -161,14 +156,9 @@ export async function getCommentsByTicket(ticketId, user) {
             // Allowed
         }
 
-        // Agent can view comments only on tickets assigned to them
+        // Agent can view comments on any ticket in their organization
         else if (user.role === roles.AGENT) {
-            if (ticket.assigned_to !== user.user_id) {
-                return {
-                    status: 403,
-                    message: "You are not allowed to view this conversation"
-                };
-            }
+            // Allowed
         }
 
         // User can view comments only on tickets created by them

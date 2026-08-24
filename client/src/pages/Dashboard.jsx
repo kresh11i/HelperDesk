@@ -2,20 +2,22 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { fetchTickets } from '../services/ticketService';
+import { getTeam } from '../services/orgService';
 import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import { ArrowRight, AlertCircle, ClipboardList } from 'lucide-react';
+import { ArrowRight, AlertCircle, ClipboardList, Users } from 'lucide-react';
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [tickets, setTickets] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadTickets = async () => {
+    const loadDashboardData = async () => {
       try {
         const data = await fetchTickets();
         if (data.status === 200 && data.tickets) {
@@ -23,15 +25,23 @@ function Dashboard() {
         } else {
           setError(data.message || 'Failed to retrieve tickets.');
         }
+
+        // Fetch team for total users if Admin
+        if (user?.role === 1) {
+          const teamData = await getTeam();
+          if (teamData.status === 200 && teamData.data) {
+            setTotalUsers(teamData.data.length);
+          }
+        }
       } catch (error) {
-        console.error("Failed to load tickets", error);
-        setError('Error fetching tickets. Please check your network connection.');
+        console.error("Failed to load dashboard data", error);
+        setError('Error fetching data. Please check your network connection.');
       } finally {
         setLoading(false);
       }
     };
-    loadTickets();
-  }, []);
+    loadDashboardData();
+  }, [user]);
 
   // Filter tickets by creator if role is End User (3)
   const userTickets = user?.role === 3 
@@ -141,10 +151,10 @@ function Dashboard() {
           </div>
         </GlassCard>
 
-        {/* Total & Resolved Stack */}
+        {/* Stats Stack */}
         <div className="md:col-span-3 flex flex-col gap-4 md:gap-6 justify-between">
           <GlassCard level={1} className="flex-1 p-6 flex flex-col justify-between min-h-[100px]">
-            <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Total</h3>
+            <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Total Tickets</h3>
             {loading ? (
               <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
             ) : (
@@ -160,6 +170,17 @@ function Dashboard() {
               <div className="text-4xl font-light tracking-tighter text-white mt-2">{resolvedTickets}</div>
             )}
           </GlassCard>
+
+          {user?.role === 1 && (
+            <GlassCard level={1} className="flex-1 p-6 flex flex-col justify-between min-h-[100px]">
+              <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase flex items-center justify-between">Total Users <Users className="w-3 h-3"/></h3>
+              {loading ? (
+                <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
+              ) : (
+                <div className="text-4xl font-light tracking-tighter text-white mt-2">{totalUsers}</div>
+              )}
+            </GlassCard>
+          )}
         </div>
 
         {/* Recent Tickets */}

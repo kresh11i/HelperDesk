@@ -14,7 +14,7 @@ router.post("/", createTicket);
 router.get("/", getAllTickets);
 router.get("/agents/list", authorizeRole(roles.ADMIN, roles.AGENT), getAgents);
 router.get("/:id", getTicketbyId);
-router.put("/:id", authorizeRole(roles.ADMIN, roles.AGENT), updateTicket);
+router.put("/:id", updateTicket);
 router.delete("/:id", authorizeRole(roles.ADMIN), deleteTicket);
 router.patch("/:id/assign", authorizeRole(roles.ADMIN, roles.AGENT), assignTicket);
 router.patch("/:id/status", updateTicketStatus);

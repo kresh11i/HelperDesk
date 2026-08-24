@@ -29,7 +29,7 @@ export async function createTicket(req, res) {
 }
 export async function getAllTickets(req, res) {
     try {
-        const result = await ticketServices.getAllTickets(req.user.org_id);
+        const result = await ticketServices.getAllTickets(req.user.org_id, req.user.user_id, req.user.role);
         return res.status(result.status).json(result);
     } catch (err) {
         res.status(500).json({ message: "Internal server error" })
@@ -75,7 +75,7 @@ export async function updateTicket(req, res) {
         const ticketId = req.params.id;
         const updatedData = req.body;
 
-        const result = await ticketServices.updateTicket(ticketId, updatedData, req.user.org_id);
+        const result = await ticketServices.updateTicket(ticketId, updatedData, req.user.org_id, req.user.user_id, req.user.role);
         return res.status(result.status).json(result);
     } catch (err) {
         console.log(err);
@@ -88,7 +88,7 @@ export async function updateTicket(req, res) {
 export async function deleteTicket(req, res) {
     try {
         const ticketId = req.params.id;
-        const result = await ticketServices.deleteTicket(ticketId, req.user.org_id);
+        const result = await ticketServices.deleteTicket(ticketId, req.user.org_id, req.user.role);
         return res.status(result.status).json(result);
     } catch (err) {
         console.log(err);
