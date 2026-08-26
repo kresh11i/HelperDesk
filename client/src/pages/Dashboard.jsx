@@ -8,6 +8,11 @@ import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import { ArrowRight, AlertCircle, ClipboardList, Users } from 'lucide-react';
 
+import TotalTicketsChart from '../components/dashboard/TotalTicketsChart';
+import TicketStatusChart from '../components/dashboard/TicketStatusChart';
+import TicketStats from '../components/dashboard/TicketStats';
+import AdditionalStats from '../components/dashboard/AdditionalStats';
+
 function Dashboard() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -76,6 +81,58 @@ function Dashboard() {
       <div className="h-2 w-1/4 bg-white/10 rounded mt-2"></div>
     </div>
   );
+
+  const isAdmin = user?.role === 1;
+
+  if (isAdmin) {
+    return (
+      <div className="flex flex-col gap-6 pb-8 h-full pt-4 animate-fade-in">
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span className="text-sm font-medium">{error}</span>
+          </div>
+        )}
+
+        {/* Dashboard Title Header */}
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-white">Admin Dashboard</h1>
+          <p className="text-xs text-neutral-400">Overview of support activity</p>
+        </div>
+
+        {/* Top Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          {/* Total Tickets (Line Chart) */}
+          <div className="lg:col-span-8">
+            <TotalTicketsChart tickets={tickets} />
+          </div>
+
+          {/* Open vs Resolved (Donut Chart) */}
+          <div className="lg:col-span-4">
+            <TicketStatusChart tickets={tickets} />
+          </div>
+        </div>
+
+        {/* Top Summary Stats Cards */}
+        <TicketStats 
+          openCount={openTickets}
+          inProgressCount={inProgressTickets}
+          resolvedCount={resolvedTickets}
+          totalCount={tickets.length}
+          totalUsers={totalUsers}
+          showUsers={true}
+        />
+
+        {/* Recent Tickets list & bottom summaries */}
+        <AdditionalStats 
+          recentTickets={recentTickets}
+          loading={loading}
+          onViewAll={() => navigate('/tickets')}
+          onTicketSelect={(ticketId) => navigate(`/tickets/${ticketId}`)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 pb-8 h-full pt-4">

@@ -2,17 +2,19 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import BottomNav from '../components/navigation/BottomNav';
-import { Search, Bell, LogOut, User, Settings, CheckCircle2 } from 'lucide-react';
+import { Search, Bell, LogOut, User, Settings, CheckCircle2, ChevronDown, Shield } from 'lucide-react';
 import GlassCard from '../components/ui/GlassCard';
 
 function DashboardLayout({ children }) {
-  const { user, logout } = useContext(AuthContext);
+  const { user, setUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
+  const roleDropdownRef = useRef(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -22,6 +24,9 @@ function DashboardLayout({ children }) {
       }
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setNotifOpen(false);
+      }
+      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target)) {
+        setRoleDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -56,6 +61,54 @@ function DashboardLayout({ children }) {
                 placeholder="Search workspace"
                 className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm focus:outline-none focus:border-white/30 focus:bg-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-64"
               />
+            </div>
+            
+            {/* Role Switcher Dropdown (Frontend Demo Simulator) */}
+            <div className="relative" ref={roleDropdownRef}>
+              <button 
+                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                className="px-3.5 py-2 bg-white/5 border border-white/10 rounded-full flex items-center gap-2 hover:bg-white/15 transition-all text-xs font-semibold text-neutral-200 cursor-pointer shadow-sm"
+                title="Simulate Role (Demo)"
+              >
+                <Shield className="w-3.5 h-3.5 text-blue-400" />
+                <span>
+                  {user?.role === 1 ? 'Admin' : user?.role === 2 ? 'Agent' : 'User'}
+                </span>
+                <ChevronDown className="w-3 h-3 text-neutral-400 hover:text-white transition-colors" />
+              </button>
+              
+              {roleDropdownOpen && (
+                <GlassCard level={3} className="absolute right-0 top-14 w-44 p-2 flex flex-col gap-1 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
+                  <div className="px-3 py-1.5 border-b border-white/10 mb-1">
+                    <span className="text-[9px] font-bold tracking-wider text-neutral-500 uppercase">Simulate Role</span>
+                  </div>
+                  {[
+                    { label: 'Admin', roleNum: 1 },
+                    { label: 'Agent', roleNum: 2 },
+                    { label: 'User', roleNum: 3 }
+                  ].map((r) => (
+                    <button
+                      key={r.roleNum}
+                      onClick={() => {
+                        setUser(prev => {
+                          const updated = { ...prev, role: r.roleNum };
+                          localStorage.setItem('user', JSON.stringify(updated));
+                          return updated;
+                        });
+                        setRoleDropdownOpen(false);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-xs rounded-lg transition-colors flex items-center justify-between cursor-pointer ${
+                        user?.role === r.roleNum 
+                          ? 'bg-white/10 text-white font-medium' 
+                          : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {r.label}
+                      {user?.role === r.roleNum && <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />}
+                    </button>
+                  ))}
+                </GlassCard>
+              )}
             </div>
             
             {/* Notification Dropdown */}
