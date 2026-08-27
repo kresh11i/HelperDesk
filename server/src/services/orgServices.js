@@ -79,6 +79,7 @@ export async function acceptInvite(token, name, password) {
         // Mark invite accepted
         await supabase.from("invitations").update({ status: "accepted" }).eq("id", invite.id);
 
+        
         return { status: 201, message: "Joined organization successfully" };
     } catch (err) {
         return { status: 500, message: "Internal Server Error" };
@@ -90,14 +91,19 @@ export async function updateRole(target_user_id, org_id, new_role, inviterRole) 
         return { status: 403, message: "Only administrators can change roles" };
     }
     try {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from("users")
             .update({ role: new_role })
             .eq("user_id", target_user_id)
-            .eq("org_id", org_id);
+            .eq("org_id", org_id)
+            .select();
 
         if (error) {
             return { status: 500, message: "Failed to update role" };
+        }
+        
+        if (!data || data.length === 0) {
+            return { status: 404, message: "User not found or unauthorized" };
         }
         return { status: 200, message: "Role updated successfully" };
     } catch (err) {

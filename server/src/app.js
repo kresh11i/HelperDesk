@@ -34,6 +34,6 @@ app.use("/auth", authRoutes);
 app.use("/health", authenticateUser, authorizeRole(3), healthRoutes);
 app.use("/tickets", authenticateUser, ticketRoutes);
 app.use("/tickets", authenticateUser, commentRoutes);
-app.use("/org", orgRoutes);
+app.use("/org", ogRoutes);
 
 export default app;

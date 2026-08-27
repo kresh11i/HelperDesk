@@ -76,7 +76,7 @@ function TicketStatusChart({ tickets }) {
                     cy="60"
                     r={r}
                     fill="transparent"
-                    stroke="#10b981"
+                    stroke="#737373"
                     strokeWidth={hoveredSegment === 'resolved' ? hoverStrokeWidth : strokeWidth}
                     strokeDasharray={`${resolvedDash} ${circ}`}
                     strokeDashoffset="0"
@@ -94,7 +94,7 @@ function TicketStatusChart({ tickets }) {
                     cy="60"
                     r={r}
                     fill="transparent"
-                    stroke="#3b82f6"
+                    stroke="#ffffff"
                     strokeWidth={hoveredSegment === 'open' ? hoverStrokeWidth : strokeWidth}
                     strokeDasharray={`${openDash} ${circ}`}
                     strokeDashoffset={-resolvedDash}
@@ -117,12 +117,12 @@ function TicketStatusChart({ tickets }) {
               </>
             ) : hoveredSegment === 'open' ? (
               <>
-                <span className="text-2xl font-light text-blue-400">{openPercent}%</span>
+                <span className="text-2xl font-light text-white">{openPercent}%</span>
                 <span className="text-[8px] text-neutral-500 uppercase font-semibold">Open</span>
               </>
             ) : hoveredSegment === 'resolved' ? (
               <>
-                <span className="text-2xl font-light text-emerald-400">{resolvedPercent}%</span>
+                <span className="text-2xl font-light text-neutral-300">{resolvedPercent}%</span>
                 <span className="text-[8px] text-neutral-500 uppercase font-semibold">Resolved</span>
               </>
             ) : (
@@ -137,14 +137,14 @@ function TicketStatusChart({ tickets }) {
         {/* Legend */}
         <div className="flex flex-col gap-2.5 shrink-0 min-w-[100px]">
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded bg-blue-500 shrink-0" />
+            <div className="w-2.5 h-2.5 rounded bg-white shrink-0" />
             <div className="flex flex-col">
               <span className="text-[10px] font-semibold text-white">Open Tickets</span>
               <span className="text-[10px] text-neutral-500">{openCount} ({openPercent}%)</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded bg-emerald-500 shrink-0" />
+            <div className="w-2.5 h-2.5 rounded bg-neutral-500 shrink-0" />
             <div className="flex flex-col">
               <span className="text-[10px] font-semibold text-white">Resolved</span>
               <span className="text-[10px] text-neutral-500">{resolvedCount} ({resolvedPercent}%)</span>

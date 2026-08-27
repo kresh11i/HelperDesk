@@ -114,12 +114,12 @@ function TotalTicketsChart({ tickets }) {
         >
           <defs>
             <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#6366f1" />
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#a3a3a3" />
             </linearGradient>
             <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(59, 130, 246, 0.25)" />
-              <stop offset="100%" stopColor="rgba(99, 102, 241, 0)" />
+              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.15)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
             </linearGradient>
           </defs>
 
@@ -189,8 +189,8 @@ function TotalTicketsChart({ tickets }) {
                 cx={pt.x} 
                 cy={pt.y} 
                 r={hoveredIndex === idx ? "5" : "3.5"} 
-                fill="#ffffff" 
-                stroke="#3b82f6" 
+                fill="#171717" 
+                stroke="#ffffff" 
                 strokeWidth={hoveredIndex === idx ? "3" : "1.5"}
                 className="transition-all duration-150 cursor-pointer"
                 onMouseEnter={() => setHoveredIndex(idx)}
