@@ -5,11 +5,23 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
+export function generateToken(userData) {
+    return jwt.sign({
+        user_id: userData.user_id,
+        org_id: userData.org_id,
+        email: userData.email,
+        role: userData.role,
+        name: userData.name
+    }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+    });
+}
+
 export async function register(data) {
-    const { organizationName, name, email, password } = data;
+    const { name, email, password } = data;
 
     // Validate input
-    if (!organizationName || !name || !email || !password) {
+    if (!name || !email || !password) {
         return {
             status: 400,
             message: "All fields are required",
@@ -18,7 +30,6 @@ export async function register(data) {
 
     // Check if user already exists
     try {
-        // ✅ MODIFIED: Renamed data -> existingUsers, error -> userCheckError
         const { data: existingUsers, error: userCheckError } = await supabase
             .from("users")
             .select("email")
@@ -45,75 +56,24 @@ export async function register(data) {
         };
     }
 
-    // Create organization
-    // ✅ MODIFIED: Renamed error -> orgError
-    // Find existing organization
-    const { data: existingOrg, error: orgCheckError } = await supabase
-        .from("organizations")
-        .select("id")
-        .eq("name", organizationName)
-        .maybeSingle();
-
-    if (orgCheckError) {
-        console.error("Database orgCheckError details:", orgCheckError);
-        return {
-            status: 500,
-            message: "Organization lookup failed",
-        };
-    }
-
-    // Create organization only if it doesn't exist
-    // V1 SECURITY FIX: Do not allow joining an existing org via registration.
-    // Must be invited to join an existing organization.
-    if (existingOrg) {
-        return {
-            status: 400,
-            message: "Organization already exists. You must be invited to join an existing organization.",
-        };
-    }
-
-    const { data: newOrg, error: orgCreateError } = await supabase
-        .from("organizations")
-        .insert([
-            {
-                name: organizationName,
-            },
-        ])
-        .select("id")
-        .single();
-
-    if (orgCreateError) {
-        console.error("Database orgCreateError details:", orgCreateError);
-        return {
-            status: 500,
-            message: "Organization creation failed",
-        };
-    }
-
-    const orgId = newOrg.id;
-
     // Hash password
     const hashedPass = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Create user without org
     try {
-        // V1 SECURITY FIX: The creator of the organization becomes the ADMIN (role 1)
-        const userRole = 1;
-        // ✅ MODIFIED: Renamed data -> newUser, error -> userInsertError
         const { data: newUser, error: userInsertError } = await supabase
             .from("users")
             .insert([
                 {
-                    org_id: orgId,
+                    org_id: null,
                     name,
                     email,
                     password: hashedPass,
-                    role: userRole
+                    role: null
                 },
             ])
             .select();
 
-        // ✅ MODIFIED: Check user insertion
         if (userInsertError) {
             console.error("Database userInsertError details:", userInsertError);
             return {
@@ -122,7 +82,6 @@ export async function register(data) {
             };
         }
 
-        // ✅ MODIFIED: Success response
         return {
             status: 201,
             message: "User registered successfully",
@@ -130,8 +89,6 @@ export async function register(data) {
         };
     } catch (error) {
         console.log(error);
-
-        // ✅ MODIFIED: Catch block
         return {
             status: 500,
             message: "Internal Server Error",
@@ -173,15 +130,7 @@ export async function login(data) {
     }
     //jwt signings
     console.log(userData);
-    const token = jwt.sign({
-        user_id: userData.user_id,
-        org_id: userData.org_id,
-        email: userData.email,
-        role: userData.role,
-        name: userData.name
-    }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-    })
+    const token = generateToken(userData);
     return {
         status: 200,
         message: "Login successful",

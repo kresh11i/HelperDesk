@@ -7,7 +7,7 @@ import healthRoutes from "./routes/healthRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import ticketRoutes from "./routes/ticketRoutes.js"
 import commentRoutes from "./routes/commentRoutes.js";
-import { authenticateUser, authorizeRole } from './middleware/authMiddleware.js';
+import { authenticateUser, authorizeRole, requireOrganization } from './middleware/authMiddleware.js';
 
 
 
@@ -32,8 +32,8 @@ app.use(morgan('dev'))
 //usage of routes
 app.use("/auth", authRoutes);
 app.use("/health", authenticateUser, authorizeRole(3), healthRoutes);
-app.use("/tickets", authenticateUser, ticketRoutes);
-app.use("/tickets", authenticateUser, commentRoutes);
-app.use("/org", ogRoutes);
+app.use("/tickets", authenticateUser, requireOrganization, ticketRoutes);
+app.use("/tickets", authenticateUser, requireOrganization, commentRoutes);
+app.use("/org", orgRoutes);
 
 export default app;

@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (organizationName, name, email, password) => {
     try {
-      const response = await api.post('/auth/register', { organizationName, name, email, password });
+      const response = await api.post('/auth/register', { name, email, password });
       // The backend returns { status: 201, message: "...", data: [...] }
       const status = response.status || response.data?.status;
       if (status === 201 || status === 200) {
@@ -90,8 +90,22 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const updateToken = (newToken) => {
+    const decoded = decodeToken(newToken);
+    if (decoded) {
+      const userObj = {
+        ...decoded,
+        name: decoded.name || decoded.email.split('@')[0].toUpperCase()
+      };
+      setToken(newToken);
+      setUser(userObj);
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(userObj));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, setUser, token, loading, login, register, logout, updateToken }}>
       {children}
     </AuthContext.Provider>
   );

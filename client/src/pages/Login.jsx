@@ -20,7 +20,13 @@ function Login() {
     const result = await login(email, password);
     
     if (result.success) {
-      navigate('/dashboard');
+      const redirectUrl = sessionStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        sessionStorage.removeItem('redirectUrl');
+        navigate(redirectUrl);
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       setError(result.message);
       setLoading(false);

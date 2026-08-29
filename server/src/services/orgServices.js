@@ -2,6 +2,7 @@ import supabase from "../config/supabaseClient.js";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import { validate as isUUID } from "uuid";
+import { generateToken } from "./authServices.js";
 
 export async function getTeam(org_id) {
     try {
@@ -16,6 +17,69 @@ export async function getTeam(org_id) {
 
         return { status: 200, message: "Team fetched successfully", data };
     } catch (err) {
+        return { status: 500, message: "Internal Server Error" };
+    }
+}
+
+export async function createOrganization(userId, organizationName) {
+    try {
+        const { data: currentUser, error: userLookupError } = await supabase
+            .from("users")
+            .select("org_id")
+            .eq("user_id", userId)
+            .single();
+
+        if (userLookupError) {
+            return { status: 500, message: "User lookup failed" };
+        }
+
+        if (currentUser.org_id) {
+            return { status: 403, message: "User already belongs to an organization" };
+        }
+
+        const { data: existingOrg, error: orgCheckError } = await supabase
+            .from("organizations")
+            .select("id")
+            .eq("name", organizationName)
+            .maybeSingle();
+
+        if (orgCheckError) {
+            return { status: 500, message: "Organization lookup failed" };
+        }
+
+        if (existingOrg) {
+            return { status: 400, message: "Organization already exists. Choose a different name." };
+        }
+
+        const { data: newOrg, error: orgCreateError } = await supabase
+            .from("organizations")
+            .insert([{ name: organizationName }])
+            .select("id")
+            .single();
+
+        if (orgCreateError) {
+            return { status: 500, message: "Organization creation failed" };
+        }
+
+        const orgId = newOrg.id;
+        const userRole = 1;
+
+        const { data: updatedUser, error: userUpdateError } = await supabase
+            .from("users")
+            .update({ org_id: orgId, role: userRole })
+            .eq("user_id", userId)
+            .select()
+            .single();
+
+        if (userUpdateError || !updatedUser) {
+            return { status: 500, message: "Failed to update user organization" };
+        }
+
+        const token = generateToken(updatedUser);
+
+        return { status: 201, message: "Organization created successfully", token };
+    } catch (error) {
+        console.error(error);
         return { status: 500, message: "Internal Server Error" };
     }
 }
@@ -48,7 +112,7 @@ export async function inviteUser(org_id, email, role, inviterRole) {
     }
 }
 
-export async function acceptInvite(token, name, password) {
+export async function acceptInvite(token, userId) {
     try {
         // Find invite
         const { data: invite, error: inviteError } = await supabase
@@ -62,25 +126,27 @@ export async function acceptInvite(token, name, password) {
             return { status: 404, message: "Invalid or expired invitation" };
         }
 
-        // Create user
-        const hashedPass = await bcrypt.hash(password, 10);
-        const { data: newUser, error: userError } = await supabase.from("users").insert([{
-            org_id: invite.org_id,
-            name,
-            email: invite.email,
-            password: hashedPass,
-            role: invite.role
-        }]).select().single();
+        // Link existing user to organization
+        const { data: updatedUser, error: userError } = await supabase
+            .from("users")
+            .update({
+                org_id: invite.org_id,
+                role: invite.role
+            })
+            .eq("user_id", userId)
+            .select()
+            .single();
 
-        if (userError) {
-            return { status: 500, message: "User creation failed" };
+        if (userError || !updatedUser) {
+            return { status: 500, message: "Failed to link user to organization" };
         }
 
         // Mark invite accepted
         await supabase.from("invitations").update({ status: "accepted" }).eq("id", invite.id);
 
+        const newToken = generateToken(updatedUser);
         
-        return { status: 201, message: "Joined organization successfully" };
+        return { status: 201, message: "Joined organization successfully", token: newToken };
     } catch (err) {
         return { status: 500, message: "Internal Server Error" };
     }

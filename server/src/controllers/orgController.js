@@ -22,13 +22,26 @@ export async function inviteUser(req, res) {
     }
 }
 
+export async function createOrganization(req, res) {
+    try {
+        const { organizationName } = req.body;
+        if (!organizationName) {
+            return res.status(400).json({ message: "Organization name is required" });
+        }
+        const result = await orgServices.createOrganization(req.user.user_id, organizationName);
+        return res.status(result.status).json(result);
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export async function acceptInvite(req, res) {
     try {
-        const { token, name, password } = req.body;
-        if (!token || !name || !password) {
-            return res.status(400).json({ message: "Token, name, and password are required" });
+        const { token } = req.body;
+        if (!token) {
+            return res.status(400).json({ message: "Token is required" });
         }
-        const result = await orgServices.acceptInvite(token, name, password);
+        const result = await orgServices.acceptInvite(token, req.user.user_id);
         return res.status(result.status).json(result);
     } catch (err) {
         res.status(500).json({ message: "Internal server error" });

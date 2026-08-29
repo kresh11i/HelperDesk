@@ -44,3 +44,12 @@ export function authorizeRole(...allowedRoles) {
         }
     };
 }
+
+export function requireOrganization(req, res, next) {
+    if (!req.user || !req.user.org_id) {
+        return res.status(403).json({
+            message: "Organization membership required"
+        });
+    }
+    next();
+}

@@ -1,12 +1,14 @@
 import express from "express";
 import * as orgController from "../controllers/orgController.js";
-import { authenticateUser } from "../middleware/authMiddleware.js";
+import { authenticateUser, requireOrganization } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/team", authenticateUser, orgController.getTeam);
-router.post("/invite", authenticateUser, orgController.inviteUser);
-router.post("/invite/accept", orgController.acceptInvite);
-router.patch("/member/:id/role", authenticateUser, orgController.updateRole);
+router.post("/create", authenticateUser, orgController.createOrganization);
+router.post("/invite/accept", authenticateUser, orgController.acceptInvite);
+
+router.get("/team", authenticateUser, requireOrganization, orgController.getTeam);
+router.post("/invite", authenticateUser, requireOrganization, orgController.inviteUser);
+router.patch("/member/:id/role", authenticateUser, requireOrganization, orgController.updateRole);
 
 export default router;

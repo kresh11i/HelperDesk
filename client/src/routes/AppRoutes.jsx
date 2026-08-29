@@ -14,6 +14,7 @@ import Team from "../pages/Team";
 import Account from "../pages/Account";
 import NotFound from "../pages/NotFound";
 import AcceptInvite from "../pages/AcceptInvite";
+import OrgSetup from "../pages/OrgSetup";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 function AppRoutes() {
@@ -25,7 +26,8 @@ function AppRoutes() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/invite/:token" element={<AcceptInvite />} />
+            <Route path="/invite/:token" element={<ProtectedRoute><AcceptInvite /></ProtectedRoute>} />
+            <Route path="/org/setup" element={<ProtectedRoute><OrgSetup /></ProtectedRoute>} />
             
             {/* Dashboard Routes wrapped in Layout */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout><Dashboard /></DashboardLayout></ProtectedRoute>} />

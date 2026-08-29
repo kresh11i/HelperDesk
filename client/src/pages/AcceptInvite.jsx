@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { acceptInvite } from '../services/orgService';
+import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 import GlassCard from '../components/ui/GlassCard';
 import Button from '../components/ui/Button';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -8,10 +9,7 @@ import { CheckCircle2, AlertCircle } from 'lucide-react';
 function AcceptInvite() {
   const navigate = useNavigate();
   const { token } = useParams();
-  
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const { updateToken } = useContext(AuthContext);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,32 +18,24 @@ function AcceptInvite() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
     setLoading(true);
     
     try {
-      const response = await acceptInvite(token, name, password);
+      const response = await api.post('/org/invite/accept', { token });
       
-      if (response.status === 201) {
+      if (response.data && response.data.status === 201) {
         setSuccess(true);
+        if (response.data.token) {
+          updateToken(response.data.token);
+        }
         setTimeout(() => {
-          navigate('/login');
-        }, 3000);
+          navigate('/dashboard');
+        }, 2000);
       } else {
-        setError(response.message || 'Failed to accept invitation. It may be expired or invalid.');
+        setError(response.data?.message || 'Failed to accept invitation. It may be expired or invalid.');
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(err.response?.data?.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -82,38 +72,9 @@ function AcceptInvite() {
                 </div>
               )}
               
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Full Name</label>
-                <input 
-                  type="text" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors"
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Password</label>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors"
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Confirm Password</label>
-                <input 
-                  type="password" 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors"
-                  required
-                />
-              </div>
+              <p className="text-sm text-neutral-400 text-center mb-6">
+                You have been invited to join an organization. Click below to accept the invitation and access the workspace.
+              </p>
 
               <Button variant="primary" className="w-full mt-4 py-3 relative" type="submit" disabled={loading}>
                 {loading ? (
@@ -126,12 +87,6 @@ function AcceptInvite() {
             </form>
           )}
         </GlassCard>
-
-        <div className="text-center mt-2">
-          <p className="text-sm text-neutral-400">
-            Already have an account? <button onClick={() => navigate('/login')} className="text-white font-medium hover:underline">Sign In</button>
-          </p>
-        </div>
 
       </div>
     </div>

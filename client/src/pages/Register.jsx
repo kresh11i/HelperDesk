@@ -7,7 +7,6 @@ import Button from '../components/ui/Button';
 function Register() {
   const navigate = useNavigate();
   const { register } = useContext(AuthContext);
-  const [organizationName, setOrganizationName] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,9 +25,15 @@ function Register() {
 
     setLoading(true);
     try {
-      const result = await register(organizationName, name, email, password);
+      const result = await register(null, name, email, password); // null for organizationName backward compat in API signature, or modify context
       if (result.success) {
-        navigate('/login');
+        const redirectUrl = sessionStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          sessionStorage.removeItem('redirectUrl');
+          navigate(redirectUrl);
+        } else {
+          navigate('/login');
+        }
       } else {
         setError(result.message || "Registration failed");
       }
@@ -61,17 +66,6 @@ function Register() {
               </div>
             )}
             
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Organization Name</label>
-              <input 
-                type="text" 
-                value={organizationName}
-                onChange={(e) => setOrganizationName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors"
-                required
-              />
-            </div>
-
             <div className="flex flex-col gap-2">
               <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Full Name</label>
               <input 
