@@ -90,10 +90,22 @@ export async function inviteUser(org_id, email, role, inviterRole) {
     }
     
     try {
-        // Check if user already exists
-        const { data: existingUser } = await supabase.from("users").select("email").eq("email", email).maybeSingle();
-        if (existingUser) {
-            return { status: 400, message: "User already exists" };
+        const { data: existingUser, error: userLookupError } = await supabase
+            .from("users")
+            .select("org_id")
+            .eq("email", email)
+            .maybeSingle();
+
+        if (userLookupError) {
+            return { status: 500, message: "User lookup failed" };
+        }
+
+        if (existingUser?.org_id === org_id) {
+            return { status: 400, message: "User is already a member of this organization." };
+        }
+
+        if (existingUser?.org_id) {
+            return { status: 409, message: "User already belongs to another organization." };
         }
 
         const token = uuidv4();
@@ -126,7 +138,28 @@ export async function acceptInvite(token, userId) {
             return { status: 404, message: "Invalid or expired invitation" };
         }
 
-        // Link existing user to organization
+        const { data: user, error: userLookupError } = await supabase
+            .from("users")
+            .select()
+            .eq("user_id", userId)
+            .single();
+
+        if (userLookupError || !user) {
+            return { status: 404, message: "User not found" };
+        }
+
+        if (user.email !== invite.email) {
+            return { status: 403, message: "This invitation belongs to a different user." };
+        }
+
+        if (user.org_id === invite.org_id) {
+            return { status: 400, message: "User is already a member of this organization." };
+        }
+
+        if (user.org_id) {
+            return { status: 409, message: "User already belongs to another organization." };
+        }
+
         const { data: updatedUser, error: userError } = await supabase
             .from("users")
             .update({
@@ -134,11 +167,12 @@ export async function acceptInvite(token, userId) {
                 role: invite.role
             })
             .eq("user_id", userId)
+            .is("org_id", null)
             .select()
             .single();
 
         if (userError || !updatedUser) {
-            return { status: 500, message: "Failed to link user to organization" };
+            return { status: 409, message: "User already belongs to an organization." };
         }
 
         // Mark invite accepted

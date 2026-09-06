@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paperclip, Send, Lock } from 'lucide-react';
 
-function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, onAttachment }) {
+function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, isClosed, lockMessage, onAttachment }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -15,7 +15,7 @@ function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, onAtt
         <div className="flex items-center gap-2 px-3 py-2.5 bg-white/5 border border-white/5 rounded-2xl text-neutral-500">
           <Lock className="w-3.5 h-3.5 shrink-0" />
           <span className="text-xs">
-            {isAgent ? 'Assign this ticket to yourself to reply.' : 'Comments locked.'}
+            {isClosed ? 'This ticket is closed.' : (lockMessage || (isAgent ? 'Assign this ticket to yourself to reply.' : 'Comments locked.'))}
           </span>
         </div>
       </div>

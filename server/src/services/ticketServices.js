@@ -90,6 +90,7 @@ export async function getAllTickets(org_id, user_id, role) {
                 const { assigned_user, ...rest } = t;
                 return {
                     ...rest,
+                    assigned_to_id: t.assigned_to,
                     assigned_to: assigned_user?.name || null
                 };
             }) : []
@@ -163,6 +164,7 @@ export async function getTicketbyId(
 
             mappedTicket = {
                 ...rest,
+                assigned_to_id: ticket.assigned_to,
                 assigned_to: assigned_user?.name || null
             };
         }
@@ -216,6 +218,36 @@ export async function updateTicket(ticketId, updatedData, org_id, user_id, role)
                 message: "Invalid ticket ID"
             };
         }
+
+        if (role === 1 || role === 2) {
+            const { data: existingTicket, error: existingTicketError } = await supabase
+                .from("tickets")
+                .select("title, description")
+                .eq("ticket_id", ticketId)
+                .eq("org_id", org_id)
+                .maybeSingle();
+
+            if (existingTicketError) {
+                return {
+                    status: 500,
+                    message: "Failed to fetch ticket"
+                };
+            }
+
+            if (!existingTicket) {
+                return {
+                    status: 404,
+                    message: "Ticket not found or unauthorized"
+                };
+            }
+
+            if (updatedData.title !== existingTicket.title || updatedData.description !== existingTicket.description) {
+                return {
+                    status: 403,
+                    message: "Administrators and Agents cannot edit ticket subject or description"
+                };
+            }
+        }
         
         let query = supabase.from("tickets").update(editableData).eq("ticket_id", ticketId).eq("org_id", org_id);
         if (role === 3) {
@@ -268,6 +300,23 @@ export async function deleteTicket(ticketId, org_id, role) {
                 message: "Invalid ticket ID"
             };
         }
+
+        // Comments reference the ticket, so remove those dependent records before
+        // deleting the ticket itself.
+        const { error: commentsDeleteError } = await supabase
+            .from("comments")
+            .delete()
+            .eq("ticket_id", ticketId)
+            .eq("org_id", org_id);
+
+        if (commentsDeleteError) {
+            console.error("Failed to delete ticket comments", commentsDeleteError);
+            return {
+                status: 500,
+                message: "Failed to delete ticket comments"
+            };
+        }
+
         const {
             data: delTicket,
             error: delTicketError
@@ -287,6 +336,15 @@ export async function deleteTicket(ticketId, org_id, role) {
                 };
             }
 
+            if (delTicketError.code === "23503") {
+                return {
+                    status: 409,
+                    message: "Ticket cannot be deleted while related records exist"
+                };
+            }
+
+            console.error("Failed to delete ticket", delTicketError);
+
             return {
                 status: 500,
                 message: "Failed to delete ticket."
@@ -298,7 +356,7 @@ export async function deleteTicket(ticketId, org_id, role) {
             message: "Ticket deleted successfully"
         };
 
-    } catch (err) {
+        } catch (err) {
         console.log(err);
 
         return {

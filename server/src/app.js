@@ -18,7 +18,8 @@ const corsPolicy = {
 
     origin: [
         "http://localhost:5173",
-        "http://localhost:5174"
+        "http://localhost:5174",
+         "https://hydrothoracic-unmodeled-georgetta.ngrok-free.dev"
     ],
     credentials: true
 

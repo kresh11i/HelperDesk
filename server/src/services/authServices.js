@@ -55,6 +55,12 @@ export async function register(data) {
             message: "Internal Server Error",
         };
     }
+    if (password.length < 8) {
+        return {
+            status: 400,
+            message: "Password must be at least 8 characters long",
+        };
+    }
 
     // Hash password
     const hashedPass = await bcrypt.hash(password, 10);

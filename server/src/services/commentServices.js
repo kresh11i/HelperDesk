@@ -24,7 +24,7 @@ export async function createComment(ticketId, comment, user) {
         // Find ticket and verify organization
         const { data: ticket, error: ticketError } = await supabase
             .from("tickets")
-            .select("ticket_id, org_id, created_by, assigned_to")
+            .select("ticket_id, org_id, created_by, assigned_to, status")
             .eq("ticket_id", ticketId)
             .eq("org_id", user.org_id)
             .maybeSingle();
@@ -45,6 +45,13 @@ export async function createComment(ticketId, comment, user) {
             };
         }
 
+        if (ticket.status?.toLowerCase() === "closed") {
+            return {
+                status: 403,
+                message: "Closed tickets are read-only"
+            };
+        }
+
         // Role-based authorization
 
         // Admin can comment on any ticket in their organization
@@ -52,9 +59,14 @@ export async function createComment(ticketId, comment, user) {
             // Allowed
         }
 
-        // Agent can comment on any ticket in their organization
+        // Agents can comment only on tickets assigned to themselves.
         else if (user.role === roles.AGENT) {
-            // Allowed
+            if (ticket.assigned_to !== user.user_id) {
+                return {
+                    status: 403,
+                    message: "Agents can only comment on tickets assigned to them."
+                };
+            }
         }
 
         // User can comment only on tickets created by them

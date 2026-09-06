@@ -156,15 +156,22 @@ function TicketDetails() {
   const isAgent = user?.role === 2;
   const isEndUser = user?.role === 3;
 
-  const isAssignedToMe = ticket && ticket.assigned_to === user?.name;
+  const isAssignedToMe = ticket && (ticket.assigned_to_id
+    ? ticket.assigned_to_id === user?.user_id
+    : ticket.assigned_to === user?.name);
   const isCreatorOfTicket = ticket && ticket.created_by === user?.user_id;
 
   // Authorization flags
   const canManageStatus = isAdmin || (isAgent && isAssignedToMe);
-  const canEditTicket = isAdmin || (isAgent && isAssignedToMe);
+  const canEditTicket = false;
   const canDeleteTicket = isAdmin;
+  const isClosedTicket = ticket?.status?.toLowerCase() === "closed";
+  const hasAssignment = Boolean(ticket?.assigned_to_id || ticket?.assigned_to);
+  const agentCommentLockMessage = !hasAssignment
+    ? "Assign this ticket to yourself to reply."
+    : "This ticket is assigned to another agent.";
   const canComment =
-    isAdmin || (isAgent && isAssignedToMe) || (isEndUser && isCreatorOfTicket);
+    !isClosedTicket && (isAdmin || (isAgent && isAssignedToMe) || (isEndUser && isCreatorOfTicket));
 
   // Sort comments chronologically by actual created_at datetime ascending
   const sortedComments = [...comments].sort((a, b) => {
@@ -218,11 +225,11 @@ function TicketDetails() {
         showToast("Ticket assigned to you.", "success");
         await loadTicket();
       } else {
-        showToast(data.message || "Failed to claim ticket.", "error");
+        showToast(data.message || "Failed to assign ticket.", "error");
       }
     } catch (error) {
       console.error(error);
-      showToast("Error claiming ticket.", "error");
+      showToast("Error assigning ticket.", "error");
     } finally {
       setUpdating(false);
     }
@@ -725,7 +732,7 @@ function TicketDetails() {
               <Lock className="w-3.5 h-3.5 shrink-0" />
               <span className="text-[10px]">
                 {isAgent
-                  ? "You must self-assign this ticket to join the conversation."
+                  ? (isClosedTicket ? "This ticket is closed." : agentCommentLockMessage)
                   : "You do not have permissions to post comments on this ticket."}
               </span>
             </div>

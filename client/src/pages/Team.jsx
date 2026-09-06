@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { inviteUser, updateRole } from '../services/orgService';
 import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import { Shield, User, UserPlus, Mail, X, CheckCircle2 } from 'lucide-react';
+import { Shield, User, UserPlus, Mail, X, Check, CheckCircle2, ChevronDown } from 'lucide-react';
 
 function Team() {
   const { user } = useContext(AuthContext);
@@ -19,13 +19,18 @@ function Team() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const [generatedToken, setGeneratedToken] = useState(null);
+  const [inviteRoleMenuOpen, setInviteRoleMenuOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('idle');
 
   // Manage Role Modal State
   const [manageModalOpen, setManageModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [manageRole, setManageRole] = useState(2);
+  const [manageRoleMenuOpen, setManageRoleMenuOpen] = useState(false);
   const [manageLoading, setManageLoading] = useState(false);
   const [manageError, setManageError] = useState('');
+  const manageRoleTriggerRef = useRef(null);
+  const manageRoleOptionRefs = useRef([]);
 
   const fetchTeam = async () => {
     try {
@@ -64,6 +69,7 @@ function Team() {
       if (res.status === 201) {
         setGeneratedToken(res.token);
         setInviteEmail('');
+        setCopyStatus('idle');
       } else {
         setInviteError(res.message || 'Failed to send invitation');
       }
@@ -79,13 +85,90 @@ function Team() {
     setGeneratedToken(null);
     setInviteError('');
     setInviteEmail('');
+    setInviteRoleMenuOpen(false);
+    setCopyStatus('idle');
+  };
+
+  const invitationUrl = generatedToken ? `${window.location.origin}/invite/${generatedToken}` : '';
+
+  const handleCopyInvitationUrl = async () => {
+    try {
+      if (!navigator.clipboard) throw new Error('Clipboard access is unavailable');
+      await navigator.clipboard.writeText(invitationUrl);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('error');
+    }
+
+    window.setTimeout(() => setCopyStatus('idle'), 2000);
   };
 
   const openManageModal = (member) => {
     if (member.user_id === user.user_id) return; // Prevent managing own role
     setSelectedMember(member);
     setManageRole(member.role);
+    setManageRoleMenuOpen(false);
     setManageModalOpen(true);
+  };
+
+  const manageRoleOptions = [
+    { value: 1, label: 'Admin' },
+    { value: 2, label: 'Agent' },
+    { value: 3, label: 'User' },
+  ];
+
+  const selectManageRole = (role) => {
+    setManageRole(String(role));
+    setManageRoleMenuOpen(false);
+  };
+
+  const handleManageRoleTriggerKeyDown = (event) => {
+    const currentIndex = manageRoleOptions.findIndex((role) => role.value === Number(manageRole));
+    if (event.key === 'Escape') {
+      setManageRoleMenuOpen(false);
+      return;
+    }
+
+    const nextIndex = {
+      ArrowDown: Math.min(currentIndex + 1, manageRoleOptions.length - 1),
+      ArrowUp: Math.max(currentIndex - 1, 0),
+      Home: 0,
+      End: manageRoleOptions.length - 1,
+    }[event.key];
+
+    if (nextIndex === undefined) return;
+
+    event.preventDefault();
+    setManageRole(String(manageRoleOptions[nextIndex].value));
+    setManageRoleMenuOpen(true);
+  };
+
+  const handleManageRoleOptionKeyDown = (event, index) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      selectManageRole(manageRoleOptions[index].value);
+      manageRoleTriggerRef.current?.focus();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      setManageRoleMenuOpen(false);
+      manageRoleTriggerRef.current?.focus();
+      return;
+    }
+
+    const nextIndex = {
+      ArrowDown: Math.min(index + 1, manageRoleOptions.length - 1),
+      ArrowUp: Math.max(index - 1, 0),
+      Home: 0,
+      End: manageRoleOptions.length - 1,
+    }[event.key];
+
+    if (nextIndex === undefined) return;
+
+    event.preventDefault();
+    setManageRole(String(manageRoleOptions[nextIndex].value));
+    manageRoleOptionRefs.current[nextIndex]?.focus();
   };
 
   const handleManageSubmit = async (e) => {
@@ -217,11 +300,17 @@ function Team() {
                 <div>
                   <p className="text-white font-medium mb-2">Invitation Created!</p>
                   <p className="text-sm text-neutral-400 mb-4">Share this link with the new member:</p>
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-3 break-all text-xs text-blue-300 font-mono">
-                    {window.location.origin}/invite/{generatedToken}
+                  <div className="rounded-lg border border-white/10 bg-black/40 p-3 break-all text-left text-xs font-mono text-blue-300">
+                    {invitationUrl}
                   </div>
+                  {copyStatus === 'error' && <p className="mt-2 text-left text-[10px] text-red-400">Unable to copy the link. Please copy it manually.</p>}
                 </div>
-                <Button variant="secondary" className="w-full mt-4" onClick={closeInviteModal}>Done</Button>
+                <div className="flex w-full flex-col gap-3">
+                  <Button variant="secondary" type="button" className="w-full" onClick={handleCopyInvitationUrl}>
+                    {copyStatus === 'copied' ? 'Copied!' : 'Copy'}
+                  </Button>
+                  <Button variant="secondary" className="w-full" onClick={closeInviteModal}>Done</Button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleInviteSubmit} className="flex flex-col gap-4">
@@ -242,14 +331,44 @@ function Team() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Role</label>
-                  <select 
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value)}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white focus:outline-none focus:border-white/30"
-                  >
-                    <option value={2}>Agent</option>
-                    <option value={3}>User</option>
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      aria-haspopup="listbox"
+                      aria-expanded={inviteRoleMenuOpen}
+                      onClick={() => setInviteRoleMenuOpen((isOpen) => !isOpen)}
+                      className="flex w-full items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white transition-colors hover:bg-white/10 focus:outline-none focus:border-white/30"
+                    >
+                      <span>{Number(inviteRole) === 2 ? 'Agent' : 'User'}</span>
+                      <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${inviteRoleMenuOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {inviteRoleMenuOpen && (
+                      <div role="listbox" aria-label="Role" className="mt-2 flex w-full flex-col gap-1 overflow-hidden rounded border border-white/10 bg-[#171717] p-1 shadow-xl shadow-black/30">
+                        {[
+                          { value: 2, label: 'Agent' },
+                          { value: 3, label: 'User' },
+                        ].map((role) => {
+                          const isSelected = Number(inviteRole) === role.value;
+                          return (
+                            <button
+                              key={role.value}
+                              type="button"
+                              role="option"
+                              aria-selected={isSelected}
+                              onClick={() => {
+                                setInviteRole(String(role.value));
+                                setInviteRoleMenuOpen(false);
+                              }}
+                              className={`flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm transition-colors ${isSelected ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/10 hover:text-white'}`}
+                            >
+                              {role.label}
+                              {isSelected && <Check className="w-4 h-4 text-neutral-300" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                   <p className="text-[10px] text-neutral-500 mt-1">Agents can manage and reply to tickets. Users can only view their own tickets.</p>
                 </div>
                 <Button variant="primary" type="submit" disabled={inviteLoading} className="w-full mt-2">
@@ -289,15 +408,43 @@ function Team() {
               
               <div className="flex flex-col gap-2 mt-2">
                 <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Change Role</label>
-                <select 
-                  value={manageRole}
-                  onChange={(e) => setManageRole(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white focus:outline-none focus:border-white/30"
-                >
-                  <option value={1}>Admin</option>
-                  <option value={2}>Agent</option>
-                  <option value={3}>User</option>
-                </select>
+                <div className="relative">
+                  <button
+                    ref={manageRoleTriggerRef}
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-controls="manage-role-options"
+                    aria-expanded={manageRoleMenuOpen}
+                    onClick={() => setManageRoleMenuOpen((isOpen) => !isOpen)}
+                    onKeyDown={handleManageRoleTriggerKeyDown}
+                    className="flex w-full items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white transition-colors hover:bg-white/10 focus:outline-none focus:border-white/30"
+                  >
+                    <span>{manageRoleOptions.find((role) => role.value === Number(manageRole))?.label}</span>
+                    <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${manageRoleMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {manageRoleMenuOpen && (
+                    <div id="manage-role-options" role="listbox" aria-label="Change Role" className="mt-2 flex w-full flex-col gap-1 overflow-hidden rounded border border-white/10 bg-[#171717] p-1 shadow-xl shadow-black/30">
+                      {manageRoleOptions.map((role, index) => {
+                        const isSelected = Number(manageRole) === role.value;
+                        return (
+                          <button
+                            key={role.value}
+                            ref={(element) => { manageRoleOptionRefs.current[index] = element; }}
+                            type="button"
+                            role="option"
+                            aria-selected={isSelected}
+                            onClick={() => selectManageRole(role.value)}
+                            onKeyDown={(event) => handleManageRoleOptionKeyDown(event, index)}
+                            className={`flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm transition-colors ${isSelected ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/10 hover:text-white'}`}
+                          >
+                            {role.label}
+                            {isSelected && <Check className="w-4 h-4 text-neutral-300" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
                 <p className="text-[10px] text-neutral-500 mt-1">WARNING: Changing a member to an Admin will give them full access to all organization settings and tickets.</p>
               </div>
               

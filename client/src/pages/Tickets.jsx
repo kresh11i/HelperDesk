@@ -69,6 +69,7 @@ function Tickets() {
   const [chatTicketLoading, setChatTicketLoading] = useState(false);
   const [ticketError, setTicketError] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [assigningTicketId, setAssigningTicketId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
@@ -200,12 +201,27 @@ function Tickets() {
   };
 
   // ─── Ticket Action Handlers ────────────────────────────────────────────────
+  const updateTicketState = (ticketId, updates) => {
+    const isUpdatedTicket = (currentTicket) => String(currentTicket.ticket_id) === String(ticketId);
+
+    setTickets((currentTickets) => currentTickets.map((currentTicket) => (
+      isUpdatedTicket(currentTicket) ? { ...currentTicket, ...updates } : currentTicket
+    )));
+    setTicket((currentTicket) => (
+      currentTicket && isUpdatedTicket(currentTicket) ? { ...currentTicket, ...updates } : currentTicket
+    ));
+  };
+
   const handleSelfAssignRow = async (ticketId) => {
+    setAssigningTicketId(ticketId);
     try {
       const data = await assignTicket(ticketId, user.user_id);
-      if (data.status === 200) { showToast('Ticket claimed!', 'success'); loadTickets(); }
-      else showToast(data.message || 'Failed to claim ticket.', 'error');
+      if (data.status === 200 && data.ticket) {
+        updateTicketState(ticketId, data.ticket);
+        showToast('Ticket assigned to you.', 'success');
+      } else showToast(data.message || 'Failed to assign ticket.', 'error');
     } catch (err) { console.error(err); showToast('Error during assignment.', 'error'); }
+    finally { setAssigningTicketId(null); }
   };
 
   const handleStatusTransition = async (nextStatus) => {
@@ -213,8 +229,9 @@ function Tickets() {
     try {
       const data = await updateTicketStatus(id, nextStatus, ticket.status, user?.role);
       if (data.status === 200) {
+        updateTicketState(id, { status: data.data?.status || nextStatus });
         showToast(`Status updated to ${nextStatus}.`, 'success');
-        await loadSelectedTicket(); loadTickets();
+        loadTickets();
       } else showToast(data.message || 'Status transition denied.', 'error');
     } catch (err) {
       console.error(err);
@@ -226,9 +243,9 @@ function Tickets() {
     setUpdating(true);
     try {
       const data = await assignTicket(id, user.user_id);
-      if (data.status === 200) { showToast('Ticket assigned to you.', 'success'); await loadSelectedTicket(); loadTickets(); }
-      else showToast(data.message || 'Failed to claim ticket.', 'error');
-    } catch (err) { console.error(err); showToast('Error claiming ticket.', 'error'); }
+      if (data.status === 200 && data.ticket) { updateTicketState(id, data.ticket); showToast('Ticket assigned to you.', 'success'); }
+      else showToast(data.message || 'Failed to assign ticket.', 'error');
+    } catch (err) { console.error(err); showToast('Error assigning ticket.', 'error'); }
     finally { setUpdating(false); }
   };
 
@@ -236,7 +253,7 @@ function Tickets() {
     setUpdating(true);
     try {
       const data = await assignTicket(id, agentId);
-      if (data.status === 200) { showToast('Ticket assigned successfully.', 'success'); await loadSelectedTicket(); loadTickets(); }
+      if (data.status === 200 && data.ticket) { updateTicketState(id, data.ticket); showToast('Ticket assigned successfully.', 'success'); }
       else showToast(data.message || 'Failed to assign ticket.', 'error');
     } catch (err) { console.error(err); showToast('Error assigning ticket.', 'error'); }
     finally { setUpdating(false); }
@@ -260,7 +277,13 @@ function Tickets() {
       setUpdating(true);
       try {
         const result = await deleteTicket(id);
-        if (result.status === 200) { showToast('Ticket deleted.', 'success'); navigate('/tickets'); loadTickets(); }
+        if (result.status === 200) {
+          setTickets((currentTickets) => currentTickets.filter((currentTicket) => String(currentTicket.ticket_id) !== String(id)));
+          setTicket(null);
+          showToast('Ticket deleted.', 'success');
+          navigate('/tickets');
+          loadTickets();
+        }
         else showToast(result.message || 'Failed to delete ticket.', 'error');
       } catch (err) { console.error(err); showToast('Error deleting ticket.', 'error'); }
       finally { setUpdating(false); }
@@ -300,12 +323,19 @@ function Tickets() {
   const isAdmin = user?.role === 1;
   const isAgent = user?.role === 2;
   const isEndUser = user?.role === 3;
-  const isAssignedToMe = ticket && ticket.assigned_to === user?.name;
+  const isAssignedToMe = ticket && (ticket.assigned_to_id
+    ? ticket.assigned_to_id === user?.user_id
+    : ticket.assigned_to === user?.name);
   const isCreatorOfTicket = ticket && ticket.created_by === user?.user_id;
   const canManageStatus = isAdmin || (isAgent && isAssignedToMe);
-  const canEditTicket = isAdmin || (isAgent && isAssignedToMe);
+  const canEditTicket = false;
   const canDeleteTicket = isAdmin;
-  const canComment = isAdmin || (isAgent && isAssignedToMe) || (isEndUser && isCreatorOfTicket);
+  const isClosedTicket = ticket?.status?.toLowerCase() === 'closed';
+  const hasAssignment = Boolean(ticket?.assigned_to_id || ticket?.assigned_to);
+  const agentCommentLockMessage = !hasAssignment
+    ? 'Assign this ticket to yourself to reply.'
+    : 'This ticket is assigned to another agent.';
+  const canComment = !isClosedTicket && (isAdmin || (isAgent && isAssignedToMe) || (isEndUser && isCreatorOfTicket));
 
   const allowedTransitions = {
     Open: ['Assigned'],
@@ -646,14 +676,17 @@ function Tickets() {
                     </div>
 
                     <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <Badge variant={row.status?.toLowerCase() === 'open' ? 'open' : (row.status?.toLowerCase() === 'closed' || row.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')}
-                        className="capitalize text-[8px] px-1.5 py-0.5">{row.status}
-                      </Badge>
                       {user?.role === 2 && !row.assigned_to && (
                         <button onClick={(e) => { e.stopPropagation(); handleSelfAssignRow(row.ticket_id); }}
-                          className="text-[9px] bg-white text-black px-1.5 py-0.5 rounded font-semibold hover:bg-neutral-200 transition-all cursor-pointer">
-                          Claim
+                          disabled={assigningTicketId === row.ticket_id}
+                          className="text-[9px] bg-white text-black px-2 py-1 rounded font-semibold hover:bg-neutral-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                          {assigningTicketId === row.ticket_id ? 'Assigning…' : 'Assign to me'}
                         </button>
+                      )}
+                      {!(user?.role === 2 && !row.assigned_to) && (
+                        <Badge variant={row.status?.toLowerCase() === 'open' ? 'open' : (row.status?.toLowerCase() === 'closed' || row.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')}
+                          className="capitalize text-[8px] px-1.5 py-0.5">{row.status}
+                        </Badge>
                       )}
                     </div>
                   </div>
@@ -776,6 +809,8 @@ function Tickets() {
                 onSubmit={handlePostComment}
                 canComment={canComment}
                 isAgent={isAgent}
+                isClosed={isClosedTicket}
+                lockMessage={isAgent ? agentCommentLockMessage : undefined}
                 onAttachment={() => showToast('Attachments not supported yet.', 'info')}
               />
             </>

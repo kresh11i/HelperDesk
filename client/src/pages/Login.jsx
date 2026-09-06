@@ -91,24 +91,7 @@ function Login() {
           </form>
         </GlassCard>
 
-        {/* Demo Accounts Card */}
-        <GlassCard level={1} className="p-6">
-          <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase mb-4">Demo Accounts - Password: password123</h3>
-          <div className="flex flex-col gap-3">
-            <button type="button" onClick={() => handleDemoLogin('userA@test.com')} className="flex justify-between items-center text-sm p-2 rounded hover:bg-white/5 transition-colors">
-              <span className="text-neutral-300">userA@test.com</span>
-              <span className="text-[10px] tracking-widest text-neutral-500 uppercase">User</span>
-            </button>
-            <button type="button" onClick={() => handleDemoLogin('agentA@test.com')} className="flex justify-between items-center text-sm p-2 rounded hover:bg-white/5 transition-colors">
-              <span className="text-neutral-300">agentA@test.com</span>
-              <span className="text-[10px] tracking-widest text-neutral-500 uppercase">Agent</span>
-            </button>
-            <button type="button" onClick={() => handleDemoLogin('adminA@test.com')} className="flex justify-between items-center text-sm p-2 rounded hover:bg-white/5 transition-colors">
-              <span className="text-neutral-300">adminA@test.com</span>
-              <span className="text-[10px] tracking-widest text-neutral-500 uppercase">Admin</span>
-            </button>
-          </div>
-        </GlassCard>
+        
 
         <div className="text-center mt-2">
           <p className="text-sm text-neutral-400">
