@@ -61,3 +61,13 @@ export async function updateRole(req, res) {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export async function removeMember(req, res) {
+    try {
+        const targetUserId = req.params.id;
+        const result = await orgServices.removeMember(targetUserId, req.user.user_id, req.user.org_id, req.user.role);
+        return res.status(result.status).json(result);
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+}

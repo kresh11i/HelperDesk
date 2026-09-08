@@ -10,5 +10,6 @@ router.post("/invite/accept", authenticateUser, orgController.acceptInvite);
 router.get("/team", authenticateUser, requireOrganization, orgController.getTeam);
 router.post("/invite", authenticateUser, requireOrganization, orgController.inviteUser);
 router.patch("/member/:id/role", authenticateUser, requireOrganization, orgController.updateRole);
+router.delete("/member/:id", authenticateUser, requireOrganization, orgController.removeMember);
 
 export default router;

@@ -210,3 +210,54 @@ export async function updateRole(target_user_id, org_id, new_role, inviterRole) 
         return { status: 500, message: "Internal Server Error" };
     }
 }
+
+export async function removeMember(target_user_id, admin_user_id, org_id, adminRole) {
+    if (adminRole !== 1) {
+        return { status: 403, message: "Only administrators can remove members" };
+    }
+    
+    if (target_user_id === admin_user_id) {
+        return { status: 400, message: "Administrators cannot remove themselves" };
+    }
+
+    try {
+        // Fetch the target user to check their role
+        const { data: targetUser, error: fetchError } = await supabase
+            .from("users")
+            .select("role")
+            .eq("user_id", target_user_id)
+            .eq("org_id", org_id)
+            .single();
+
+        if (fetchError || !targetUser) {
+            return { status: 404, message: "User not found in this organization" };
+        }
+
+        // Prevent Admins from removing other Admins
+        if (targetUser.role === 1) {
+            return { status: 403, message: "Administrators cannot remove other Administrators" };
+        }
+
+        // Unassign any tickets assigned to this user
+        await supabase
+            .from("tickets")
+            .update({ assigned_to: null })
+            .eq("assigned_to", target_user_id)
+            .eq("org_id", org_id);
+
+        // Remove user from the organization
+        const { error: updateError } = await supabase
+            .from("users")
+            .update({ org_id: null, role: null })
+            .eq("user_id", target_user_id)
+            .eq("org_id", org_id);
+
+        if (updateError) {
+            return { status: 500, message: "Failed to remove member" };
+        }
+
+        return { status: 200, message: "Member removed successfully" };
+    } catch (err) {
+        return { status: 500, message: "Internal Server Error" };
+    }
+}

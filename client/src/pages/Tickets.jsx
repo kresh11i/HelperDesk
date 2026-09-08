@@ -482,26 +482,36 @@ function Tickets() {
               {/* Assignee */}
               <div>
                 <span className="text-[8px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Assignee</span>
-                <div className="flex items-center gap-1.5">
-                  <User className="w-3 h-3 text-neutral-400" />
-                  <span className="text-white font-medium text-xs">{ticket.assigned_to || 'Unassigned'}</span>
-                </div>
-                {isAgent && !ticket.assigned_to && (
-                  <button onClick={handleSelfAssign} disabled={updating}
-                    className="text-[9px] text-blue-400 hover:text-blue-300 font-semibold mt-1 block cursor-pointer">
-                    Assign to me
-                  </button>
-                )}
-                {isAdmin && !ticket.assigned_to && agents.length > 0 && (
-                  <div className="mt-1.5">
-                    <select onChange={(e) => handleAdminAssign(e.target.value)} disabled={updating} defaultValue=""
-                      className="w-full bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none appearance-none cursor-pointer">
-                      <option value="" disabled className="bg-neutral-900">Assign…</option>
+                
+                {(!isAdmin || agents.length === 0) ? (
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-3 h-3 text-neutral-400" />
+                    <span className="text-white font-medium text-xs">{ticket.assigned_to || 'Unassigned'}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-3 h-3 text-neutral-400 shrink-0" />
+                    <select
+                      onChange={(e) => handleAdminAssign(e.target.value)}
+                      disabled={updating}
+                      className="flex-1 bg-transparent border-b border-white/10 hover:border-white/30 focus:border-blue-500 py-0.5 text-xs text-white font-medium focus:outline-none cursor-pointer transition-colors"
+                      value={ticket.assigned_to_id || ""}
+                    >
+                      <option value="" disabled className="bg-neutral-900">
+                        {ticket.assigned_to ? 'Change Assignee…' : 'Assign…'}
+                      </option>
                       {agents.map((a) => (
                         <option key={a.user_id} value={a.user_id} className="bg-neutral-900">{a.name}</option>
                       ))}
                     </select>
                   </div>
+                )}
+
+                {isAgent && !ticket.assigned_to && (
+                  <button onClick={handleSelfAssign} disabled={updating}
+                    className="text-[9px] text-blue-400 hover:text-blue-300 font-semibold mt-1 block cursor-pointer">
+                    Assign to me
+                  </button>
                 )}
               </div>
 
@@ -672,7 +682,10 @@ function Tickets() {
                         <Badge variant={row.priority?.toLowerCase() || 'medium'} className="text-[7px] px-1 py-0 uppercase">{row.priority}</Badge>
                       </div>
                       <p className="text-xs font-medium text-white group-hover:text-blue-300 transition-colors truncate">{row.title}</p>
-                      <p className="text-[9px] text-neutral-500 mt-0.5">{new Date(row.created_at || Date.now()).toLocaleDateString()}</p>
+                      <p className="text-[9px] text-neutral-500 mt-0.5">
+                        {new Date(row.created_at || Date.now()).toLocaleDateString()}
+                        {row.assigned_to && <span className="ml-2 text-blue-400">Assigned: {row.assigned_to}</span>}
+                      </p>
                     </div>
 
                     <div className="flex flex-col items-end gap-1.5 shrink-0">

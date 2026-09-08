@@ -36,3 +36,12 @@ export const updateRole = async (userId, newRole) => {
     }
 };
 
+export const removeMember = async (userId) => {
+    try {
+        const response = await api.delete(`/org/member/${userId}`);
+        return response.data;
+    } catch (error) {
+        return error.response?.data || { status: 500, message: 'Failed to connect to server' };
+    }
+};
+

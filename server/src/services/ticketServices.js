@@ -4,6 +4,12 @@ import allowedPriorities from "../constant/ticketPriorities.js";
 import { validate as isUUID } from "uuid";
 import roles from "../constant/roles.js"
 
+const ensureUTC = (dateStr) => {
+    if (!dateStr) return dateStr;
+    return dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : dateStr + 'Z';
+};
+
+
 export async function createTicket(ticketData) {
     const { title, description, priority } = ticketData;
 
@@ -51,7 +57,11 @@ export async function createTicket(ticketData) {
         return {
             status: 201,
             message: "Ticket created successfully",
-            ticket: tickets
+            ticket: {
+                ...tickets,
+                created_at: ensureUTC(tickets.created_at),
+                updated_at: ensureUTC(tickets.updated_at)
+            }
         }
 
     } catch (err) {
@@ -90,6 +100,8 @@ export async function getAllTickets(org_id, user_id, role) {
                 const { assigned_user, ...rest } = t;
                 return {
                     ...rest,
+                    created_at: ensureUTC(rest.created_at),
+                    updated_at: ensureUTC(rest.updated_at),
                     assigned_to_id: t.assigned_to,
                     assigned_to: assigned_user?.name || null
                 };
@@ -164,6 +176,8 @@ export async function getTicketbyId(
 
             mappedTicket = {
                 ...rest,
+                created_at: ensureUTC(rest.created_at),
+                updated_at: ensureUTC(rest.updated_at),
                 assigned_to_id: ticket.assigned_to,
                 assigned_to: assigned_user?.name || null
             };
@@ -421,12 +435,6 @@ export async function assignTicket(info) {
                     message: "Agent user_id is required"
                 };
             }
-            if (ticket.assigned_to !== null && ticket.assigned_to !== undefined) {
-                return {
-                    status: 400,
-                    message: "Ticket is already assigned"
-                };
-            }
 
             target = info.assignedTo;
 
@@ -440,7 +448,7 @@ export async function assignTicket(info) {
         // Validate target Agent
         const { data: targetAgent, error: agentError } = await supabase
             .from("users")
-            .select("user_id, org_id, role")
+            .select("user_id, org_id, role, name")
             .eq("user_id", target)
             .eq("org_id", info.org_id)
             .eq("role", 2)
@@ -464,8 +472,7 @@ export async function assignTicket(info) {
         const { data: updatedTicket, error: updateError } = await supabase
             .from("tickets")
             .update({
-                assigned_to: target,
-                status: "Assigned"
+                assigned_to: target
             })
             .eq("ticket_id", info.ticketId)
             .eq("org_id", info.org_id)
@@ -484,7 +491,10 @@ export async function assignTicket(info) {
             const { assigned_user, ...rest } = updatedTicket;
             mappedTicket = {
                 ...rest,
-                assigned_to: assigned_user?.name || null
+                created_at: ensureUTC(rest.created_at),
+                updated_at: ensureUTC(rest.updated_at),
+                assigned_to_id: target,
+                assigned_to: targetAgent.name || assigned_user?.name || null
             };
         }
 

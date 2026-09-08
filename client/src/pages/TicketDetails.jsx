@@ -488,10 +488,30 @@ function TicketDetails() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
               <div>
                 <span className="text-[9px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Assignee</span>
-                <div className="flex items-center gap-2">
-                  <User className="w-3.5 h-3.5 text-neutral-400" />
-                  <span className="text-xs text-white font-medium">{ticket.assigned_to || "Unassigned"}</span>
-                </div>
+                
+                {(!isAdmin || agents.length === 0) ? (
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-neutral-400" />
+                    <span className="text-xs text-white font-medium">{ticket.assigned_to || "Unassigned"}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                    <select
+                      onChange={(e) => handleAdminAssign(e.target.value)}
+                      disabled={updating}
+                      className="flex-1 bg-transparent border-b border-white/10 hover:border-white/30 focus:border-blue-500 py-0.5 text-xs text-white font-medium focus:outline-none cursor-pointer transition-colors"
+                      value={ticket.assigned_to_id || ""}
+                    >
+                      <option value="" disabled className="bg-neutral-900">
+                        {ticket.assigned_to ? 'Change Assignee...' : 'Assign Agent...'}
+                      </option>
+                      {agents.map((a) => (
+                        <option key={a.user_id} value={a.user_id} className="bg-neutral-900">{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 
                 {/* Agent self-assignment */}
                 {isAgent && !ticket.assigned_to && (
@@ -503,23 +523,6 @@ function TicketDetails() {
                   >
                     Assign to me
                   </button>
-                )}
-
-                {/* Admin assign dropdown list */}
-                {isAdmin && !ticket.assigned_to && agents.length > 0 && (
-                  <div className="mt-2">
-                    <select
-                      onChange={(e) => handleAdminAssign(e.target.value)}
-                      disabled={updating}
-                      className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white focus:outline-none"
-                      defaultValue=""
-                    >
-                      <option value="" disabled className="bg-neutral-900">Assign Agent...</option>
-                      {agents.map((a) => (
-                        <option key={a.user_id} value={a.user_id} className="bg-neutral-900">{a.name}</option>
-                      ))}
-                    </select>
-                  </div>
                 )}
               </div>
 

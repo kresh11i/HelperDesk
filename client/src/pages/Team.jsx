@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import { inviteUser, updateRole } from '../services/orgService';
+import { inviteUser, updateRole, removeMember } from '../services/orgService';
 import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
@@ -31,6 +31,12 @@ function Team() {
   const [manageError, setManageError] = useState('');
   const manageRoleTriggerRef = useRef(null);
   const manageRoleOptionRefs = useRef([]);
+
+  // Remove Member Modal State
+  const [removeModalOpen, setRemoveModalOpen] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState(null);
+  const [removeLoading, setRemoveLoading] = useState(false);
+  const [removeError, setRemoveError] = useState('');
 
   const fetchTeam = async () => {
     try {
@@ -190,6 +196,31 @@ function Team() {
     }
   };
 
+  const openRemoveModal = (member) => {
+    if (member.user_id === user.user_id || member.role === 1) return;
+    setRemoveTarget(member);
+    setRemoveModalOpen(true);
+    setRemoveError('');
+  };
+
+  const handleRemoveSubmit = async () => {
+    setRemoveLoading(true);
+    setRemoveError('');
+    try {
+      const res = await removeMember(removeTarget.user_id);
+      if (res.status === 200) {
+        setRemoveModalOpen(false);
+        fetchTeam();
+      } else {
+        setRemoveError(res.message || 'Failed to remove member');
+      }
+    } catch (err) {
+      setRemoveError('An unexpected error occurred');
+    } finally {
+      setRemoveLoading(false);
+    }
+  };
+
   // RBAC check
   if (user?.role === 3) {
     return (
@@ -269,7 +300,12 @@ function Team() {
                   <td className="p-4 text-right">
                     {user?.role === 1 ? (
                       member.user_id !== user.user_id ? (
-                        <button onClick={() => openManageModal(member)} className="text-xs text-neutral-400 hover:text-white transition-colors">Manage</button>
+                        <div className="flex items-center justify-end gap-3">
+                          <button onClick={() => openManageModal(member)} className="text-xs text-neutral-400 hover:text-white transition-colors">Manage</button>
+                          {member.role !== 1 && (
+                            <button onClick={() => openRemoveModal(member)} className="text-xs text-red-400 hover:text-red-300 transition-colors">Remove</button>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-xs text-neutral-600 italic">You</span>
                       )
@@ -453,6 +489,36 @@ function Team() {
               </Button>
             </form>
           </GlassCard>
+        </div>
+      )}
+
+      {/* Remove Member Modal */}
+      {removeModalOpen && removeTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-neutral-900 border border-white/10 rounded-xl w-full max-w-sm p-6 shadow-2xl relative">
+            <button onClick={() => setRemoveModalOpen(false)} className="absolute top-4 right-4 text-neutral-400 hover:text-white">
+              <X className="w-4 h-4" />
+            </button>
+            <h3 className="text-lg font-semibold text-white mb-2">Remove Member</h3>
+            <p className="text-sm text-neutral-400 mb-6 leading-relaxed">
+              Are you sure you want to remove <span className="text-white font-medium">{removeTarget.name}</span> from the organization? Their assigned tickets will be unassigned.
+            </p>
+
+            {removeError && (
+              <div className="mb-4 p-3 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                {removeError}
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 justify-end mt-4">
+              <Button variant="secondary" onClick={() => setRemoveModalOpen(false)} disabled={removeLoading}>
+                Cancel
+              </Button>
+              <Button onClick={handleRemoveSubmit} disabled={removeLoading} className="bg-red-500 hover:bg-red-600 text-white border-transparent">
+                {removeLoading ? 'Removing...' : 'Remove Member'}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 

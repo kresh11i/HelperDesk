@@ -2,6 +2,12 @@ import supabase from "../config/supabaseClient.js";
 import { validate as isUUID } from "uuid";
 import roles from "../constant/roles.js";
 
+const ensureUTC = (dateStr) => {
+    if (!dateStr) return dateStr;
+    return dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : dateStr + 'Z';
+};
+
+
 export async function createComment(ticketId, comment, user) {
     try {
 
@@ -98,7 +104,7 @@ export async function createComment(ticketId, comment, user) {
                     comment: comment.trim()
                 }
             ])
-            .select()
+            .select("*, user:users(name, role)")
             .single();
 
         if (commentError) {
@@ -113,7 +119,10 @@ export async function createComment(ticketId, comment, user) {
         return {
             status: 201,
             message: "Comment created successfully",
-            comment: newComment
+            comment: {
+                ...newComment,
+                created_at: ensureUTC(newComment.created_at)
+            }
         };
 
     } catch (err) {
@@ -194,7 +203,7 @@ export async function getCommentsByTicket(ticketId, user) {
         // Fetch comments
         const { data: comments, error: commentsError } = await supabase
             .from("comments")
-            .select("*")
+            .select("*, user:users(name, role)")
             .eq("ticket_id", ticketId)
             .eq("org_id", user.org_id)
             .order("created_at", { ascending: true });
@@ -211,7 +220,10 @@ export async function getCommentsByTicket(ticketId, user) {
         return {
             status: 200,
             message: "Comments fetched successfully",
-            comments: comments
+            comments: comments ? comments.map(c => ({
+                ...c,
+                created_at: ensureUTC(c.created_at)
+            })) : []
         };
 
     } catch (err) {
