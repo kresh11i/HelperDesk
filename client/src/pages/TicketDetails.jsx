@@ -384,10 +384,10 @@ function TicketDetails() {
   });
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 w-full h-[calc(100vh-140px)] min-h-[600px] text-white pt-2 md:pt-4 overflow-hidden relative bg-[#0a0a0a]">
+    <div className="flex flex-col md:flex-row gap-6 w-full h-auto min-h-0 md:h-[calc(100vh-140px)] md:min-h-[600px] text-white pt-2 md:pt-4 overflow-visible md:overflow-hidden relative bg-[#0a0a0a]">
       
       {/* LEFT COLUMN: Ticket Details & Metadata (~55% width) */}
-      <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 gap-5">
+      <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md overflow-visible md:overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 gap-5">
         
         <button
           onClick={() => navigate("/tickets")}
@@ -619,7 +619,7 @@ function TicketDetails() {
       </div>
 
       {/* RIGHT COLUMN: Chat Conversation (~45% width) */}
-      <div className="w-full md:w-[450px] lg:w-[480px] shrink-0 flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md">
+      <div className="w-full md:w-[450px] lg:w-[480px] shrink-0 flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md min-h-[450px] max-h-[70vh] md:max-h-none md:h-full">
         
         {/* Chat Header */}
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-white/5 shrink-0">

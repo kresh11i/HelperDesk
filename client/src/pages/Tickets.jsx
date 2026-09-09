@@ -83,6 +83,17 @@ function Tickets() {
   // ─── Mobile: Detail Drawer State ──────────────────────────────────────────
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
 
+  useEffect(() => {
+    if (detailDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [detailDrawerOpen]);
+
   // ─── Data Loaders ──────────────────────────────────────────────────────────
   const loadTickets = async () => {
     try {
@@ -825,6 +836,9 @@ function Tickets() {
                 isClosed={isClosedTicket}
                 lockMessage={isAgent ? agentCommentLockMessage : undefined}
                 onAttachment={() => showToast('Attachments not supported yet.', 'info')}
+                hasAssignment={hasAssignment}
+                onAssignToMe={handleSelfAssign}
+                isUpdating={updating}
               />
             </>
           )}
@@ -844,7 +858,7 @@ function Tickets() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
           {/* Drawer Sheet */}
-          <div className="relative w-full bg-[#111] border-t border-white/10 rounded-t-3xl p-6 flex flex-col gap-5 max-h-[80vh] overflow-y-auto z-10 animate-in slide-in-from-bottom-4 duration-300">
+          <div className="relative w-full bg-[#111] border-t border-white/10 rounded-t-3xl p-6 pb-12 flex flex-col gap-5 max-h-[85dvh] overflow-y-auto overscroll-contain z-10 animate-in slide-in-from-bottom-4 duration-300">
             {/* Drag handle */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 bg-white/20 rounded-full" />
 

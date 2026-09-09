@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paperclip, Send, Lock } from 'lucide-react';
 
-function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, isClosed, lockMessage, onAttachment }) {
+function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, isClosed, lockMessage, onAttachment, hasAssignment, onAssignToMe, isUpdating }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -14,9 +14,19 @@ function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, isClo
       <div className="p-3 border-t border-white/10 bg-white/5 shrink-0">
         <div className="flex items-center gap-2 px-3 py-2.5 bg-white/5 border border-white/5 rounded-2xl text-neutral-500">
           <Lock className="w-3.5 h-3.5 shrink-0" />
-          <span className="text-xs">
+          <span className="text-xs flex-1">
             {isClosed ? 'This ticket is closed.' : (lockMessage || (isAgent ? 'Assign this ticket to yourself to reply.' : 'Comments locked.'))}
           </span>
+          {isAgent && !isClosed && !hasAssignment && onAssignToMe && (
+            <button
+              type="button"
+              onClick={onAssignToMe}
+              disabled={isUpdating}
+              className="text-[10px] font-semibold text-blue-400 hover:text-blue-300 transition-colors whitespace-nowrap px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg shrink-0 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isUpdating ? 'Assigning...' : 'Assign to me'}
+            </button>
+          )}
         </div>
       </div>
     );

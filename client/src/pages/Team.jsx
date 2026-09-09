@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import { inviteUser, updateRole, removeMember } from '../services/orgService';
+import { getTeam, inviteUser, updateRole, removeMember } from '../services/orgService';
 import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
@@ -40,16 +40,11 @@ function Team() {
 
   const fetchTeam = async () => {
     try {
-      const response = await fetch('http://localhost:3000/org/team', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      if (response.ok) {
+      const data = await getTeam();
+      if (data.status === 200) {
         setTeamMembers(data.data);
       } else {
-        setError(data.message);
+        setError(data.message || 'Failed to load team directory');
       }
     } catch (err) {
       setError('Failed to load team directory');
