@@ -12,6 +12,7 @@ import TotalTicketsChart from '../components/dashboard/TotalTicketsChart';
 import TicketStatusChart from '../components/dashboard/TicketStatusChart';
 import TicketStats from '../components/dashboard/TicketStats';
 import AdditionalStats from '../components/dashboard/AdditionalStats';
+import PageContainer from '../components/layout/PageContainer';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -86,7 +87,7 @@ function Dashboard() {
 
 
   return (
-    <div className="flex flex-col gap-6 pb-8 h-full pt-4">
+    <PageContainer>
       
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3">
@@ -290,7 +291,7 @@ function Dashboard() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import GlassCard from '../components/ui/GlassCard';
 import Button from '../components/ui/Button';
 import { Search, Book, FileText, ExternalLink } from 'lucide-react';
+import PageContainer from '../components/layout/PageContainer';
 
 function KnowledgeBase() {
   const [search, setSearch] = useState('');
@@ -18,7 +19,7 @@ function KnowledgeBase() {
   const filteredArticles = articles.filter(a => a.title.toLowerCase().includes(search.toLowerCase()) || a.category.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="flex flex-col gap-6 pb-8 h-full pt-4">
+    <PageContainer>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
         <div>
@@ -76,7 +77,7 @@ function KnowledgeBase() {
           ))
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

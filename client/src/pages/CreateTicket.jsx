@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import { ArrowLeft } from 'lucide-react';
 import { createTicket } from '../services/ticketService';
 import { ToastContext } from '../contexts/ToastContext';
+import PageContainer from '../components/layout/PageContainer';
 
 function CreateTicket() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function CreateTicket() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-8 h-full max-w-2xl mx-auto w-full pt-4 md:pt-12">
+    <PageContainer maxWidth="2xl">
       
       <button 
         onClick={() => navigate(-1)}
@@ -122,7 +123,7 @@ function CreateTicket() {
         </form>
       </GlassCard>
 
-    </div>
+    </PageContainer>
   );
 }
 

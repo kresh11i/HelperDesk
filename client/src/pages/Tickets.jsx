@@ -577,7 +577,7 @@ function Tickets() {
           LEFT COLUMN — Queue + Detail + Actions (stacked)
           Mobile: hidden when conversation is active
           ═══════════════════════════════════════════════════════ */}
-      <div className={`flex flex-col gap-4 lg:w-[42%] lg:flex-shrink-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 ${showConversation ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`flex flex-col gap-4 lg:w-[42%] lg:flex-shrink-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 pb-24 lg:pb-0 pr-1 md:pr-0 ${showConversation ? 'hidden lg:flex' : 'flex'}`}>
 
         {/* ── CARD 1: Ticket Queue ── */}
         <div className="flex flex-col gap-3">
@@ -788,7 +788,7 @@ function Tickets() {
           Mobile: shown only when a ticket is selected (full screen)
           ═══════════════════════════════════════════════════════ */}
       {id && (
-        <div className={`flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 ${showConversation ? 'flex' : 'hidden lg:flex'}`}
+        <div className={`flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 pb-24 lg:pb-0 ${showConversation ? 'flex' : 'hidden lg:flex'}`}
           style={{ background: 'rgba(255,255,255,0.03)', minHeight: 0 }}>
 
           {chatTicketLoading ? (
@@ -851,7 +851,7 @@ function Tickets() {
           ═══════════════════════════════════════════════════════ */}
       {detailDrawerOpen && ticket && (
         <div
-          className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden"
+          className="fixed inset-0 z-[60] flex flex-col justify-end lg:hidden"
           onClick={(e) => { if (e.target === e.currentTarget) setDetailDrawerOpen(false); }}
         >
           {/* Backdrop */}

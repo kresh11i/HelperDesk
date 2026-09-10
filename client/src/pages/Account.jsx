@@ -4,7 +4,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import GlassCard from '../components/ui/GlassCard';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
-import { User, Mail, Shield, Building } from 'lucide-react';
+import { User, Mail, Shield, Building, Clock, LogOut, Edit2 } from 'lucide-react';
+import PageContainer from '../components/layout/PageContainer';
 
 function Account() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function Account() {
   const roleName = user?.role === 1 ? 'Administrator' : user?.role === 2 ? 'Agent' : 'End User';
 
   return (
-    <div className="flex flex-col gap-6 pb-8 h-full max-w-lg mx-auto w-full pt-4 md:pt-12">
+    <PageContainer maxWidth="lg">
       
       <div className="text-center mb-2">
         <h1 className="text-3xl font-semibold tracking-tight text-white">Account</h1>
@@ -106,7 +107,7 @@ function Account() {
         </Button>
       </GlassCard>
 
-    </div>
+    </PageContainer>
   );
 }
 

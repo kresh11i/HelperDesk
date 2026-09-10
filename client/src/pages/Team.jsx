@@ -5,6 +5,7 @@ import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import { Shield, User, UserPlus, Mail, X, Check, CheckCircle2, ChevronDown } from 'lucide-react';
+import PageContainer from '../components/layout/PageContainer';
 
 function Team() {
   const { user } = useContext(AuthContext);
@@ -234,7 +235,7 @@ function Team() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-8 h-full pt-4 relative">
+    <PageContainer className="relative">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
         <div>
@@ -516,8 +517,7 @@ function Team() {
           </div>
         </div>
       )}
-
-    </div>
+    </PageContainer>
   );
 }
 
