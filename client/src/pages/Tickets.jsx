@@ -573,18 +573,18 @@ function Tickets() {
 
 
   return (
-    <div className="w-full text-white flex-1 min-h-[600px] flex flex-col lg:flex-row gap-4 overflow-hidden pb-24 md:pb-28">
+    <div className="w-full text-white flex-1 min-h-0 flex flex-col lg:flex-row gap-4 overflow-hidden">
 
       {/* ═══════════════════════════════════════════════════════
           LEFT COLUMN — Queue + Detail + Actions (stacked)
           Mobile: hidden when conversation is active
           ═══════════════════════════════════════════════════════ */}
-      <div className={`flex flex-col gap-4 transition-all duration-500 pr-1 md:pr-0 ${showConversation ? 'hidden lg:flex lg:w-[42%] lg:flex-shrink-0' : 'flex w-full lg:w-full lg:flex-shrink-0'}`}>
+      <div className={`flex flex-col gap-4 transition-all duration-500 pr-1 md:pr-0 min-h-0 ${showConversation ? 'hidden lg:flex lg:w-[42%] lg:flex-shrink-0' : 'flex w-full lg:w-full lg:flex-shrink-0'}`}>
 
         {/* ── CARD 1: Ticket Queue ── */}
         <div className="flex flex-col gap-3 flex-1 min-h-0">
           {/* Queue header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between shrink-0">
             <div>
               <h1 className="text-xl font-semibold tracking-tight text-white">Tickets</h1>
               <p className="text-xs text-neutral-400 mt-0.5">Manage support requests</p>
@@ -597,7 +597,7 @@ function Tickets() {
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl flex items-center gap-3 text-xs">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl flex items-center gap-3 text-xs shrink-0">
               <AlertCircle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}

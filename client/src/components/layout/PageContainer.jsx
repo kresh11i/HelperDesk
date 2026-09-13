@@ -7,7 +7,7 @@ const PageContainer = ({ children, maxWidth = 'full', className = '' }) => {
   }[maxWidth] || 'w-full';
 
   return (
-    <div className={`flex flex-col gap-6 flex-1 md:min-h-0 ${maxWidthClass} ${className}`}>
+    <div className={`flex flex-col gap-6 flex-1 ${maxWidthClass} ${className}`}>
       {children}
     </div>
   );

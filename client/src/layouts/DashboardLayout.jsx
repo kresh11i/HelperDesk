@@ -128,8 +128,8 @@ function DashboardLayout({ children }) {
       </header>
 
       {/* Main Content Area */}
-      <main className={`flex-1 flex flex-col min-w-0 ${location.pathname.startsWith('/tickets') ? 'overflow-hidden pb-24 lg:pb-0' : 'pb-48 lg:pb-24 overflow-y-auto'}`}>
-        <div className={`flex-1 flex flex-col pt-2 md:pt-4 px-6 md:px-10 max-w-[1600px] w-full mx-auto relative md:min-h-0 ${location.pathname.startsWith('/tickets') ? 'min-h-0' : ''}`}>
+      <main className={`flex-1 flex flex-col min-w-0 scrollbar-hide ${location.pathname.startsWith('/tickets') ? 'overflow-hidden' : `overflow-y-auto ${user?.role === 1 ? 'lg:overflow-y-auto' : 'lg:overflow-hidden'}`}`}>
+        <div className={`flex-1 flex flex-col px-6 md:px-10 max-w-[1600px] w-full mx-auto relative ${location.pathname.startsWith('/tickets') ? 'min-h-0 md:min-h-0 pt-0 md:pt-0 pb-24 lg:pb-24' : 'pt-2 md:pt-4 pb-48 lg:pb-48'}`}>
           {children}
         </div>
       </main>
