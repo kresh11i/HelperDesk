@@ -3,13 +3,13 @@ import React from 'react';
 const Badge = ({ children, variant = 'default', className = '' }) => {
   const variants = {
     default: 'bg-white/10 text-white border border-white/20',
-    high: 'bg-black text-white border border-white/30 font-semibold',
-    medium: 'bg-neutral-800 text-white border border-white/20',
-    low: 'bg-neutral-900 text-neutral-300 border border-white/10',
-    open: 'bg-white/20 text-white border border-white/30',
-    inProgress: 'bg-neutral-700/50 text-white border border-white/20',
-    resolved: 'bg-neutral-200 text-black border border-transparent font-medium',
-    closed: 'bg-black text-neutral-400 border border-white/10'
+    high: 'bg-red-500/10 text-red-400 border border-red-500/20 font-semibold',
+    medium: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
+    low: 'bg-white/5 text-neutral-300 border border-white/10',
+    open: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+    inProgress: 'bg-purple-500/10 text-purple-400 border border-purple-500/20',
+    resolved: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium',
+    closed: 'bg-white/5 text-neutral-500 border border-white/10'
   };
 
   const selectedVariant = variants[variant] || variants.default;

@@ -33,14 +33,28 @@ function TicketStatusChart({ tickets }) {
 
   return (
     <GlassCard level={1} className="p-6 flex flex-col justify-between h-full relative group">
-      <div>
-        <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-1">Open vs Resolved</h3>
-        <p className="text-neutral-400 text-[10px] mb-4">Support ticket distribution</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
+        <div>
+          <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-1">Open vs Resolved</h3>
+          <p className="text-neutral-400 text-[10px]">Support ticket distribution</p>
+        </div>
+        
+        {/* Legend */}
+        <div className="flex flex-wrap gap-4 shrink-0 mt-3 sm:mt-0">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-white shrink-0" />
+            <span className="text-[10px] font-semibold text-white">Open <span className="text-neutral-400 font-normal ml-0.5">{openCount} ({openPercent}%)</span></span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-neutral-500 shrink-0" />
+            <span className="text-[10px] font-semibold text-white">Resolved <span className="text-neutral-400 font-normal ml-0.5">{resolvedCount} ({resolvedPercent}%)</span></span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-6 my-2">
+      <div className="flex-1 flex items-center justify-center pb-2">
         {/* SVG Donut */}
-        <div className="relative w-36 h-36 flex items-center justify-center select-none">
+        <div className="relative w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center select-none mx-auto">
           <svg 
             width="100%" 
             height="100%" 
@@ -131,24 +145,6 @@ function TicketStatusChart({ tickets }) {
                 <span className="text-[8px] text-neutral-500 uppercase font-semibold">Resolved</span>
               </>
             )}
-          </div>
-        </div>
-
-        {/* Legend */}
-        <div className="flex flex-col gap-2.5 shrink-0 min-w-[100px]">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded bg-white shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-[10px] font-semibold text-white">Open Tickets</span>
-              <span className="text-[10px] text-neutral-500">{openCount} ({openPercent}%)</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded bg-neutral-500 shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-[10px] font-semibold text-white">Resolved</span>
-              <span className="text-[10px] text-neutral-500">{resolvedCount} ({resolvedPercent}%)</span>
-            </div>
           </div>
         </div>
       </div>

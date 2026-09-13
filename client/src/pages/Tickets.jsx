@@ -489,9 +489,9 @@ function Tickets() {
             </div>
 
             {/* Meta grid */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               {/* Assignee */}
-              <div>
+              <div className="min-w-0">
                 <span className="text-[8px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Assignee</span>
                 
                 {(!isAdmin || agents.length === 0) ? (
@@ -505,7 +505,7 @@ function Tickets() {
                     <select
                       onChange={(e) => handleAdminAssign(e.target.value)}
                       disabled={updating}
-                      className="flex-1 bg-transparent border-b border-white/10 hover:border-white/30 focus:border-blue-500 py-0.5 text-xs text-white font-medium focus:outline-none cursor-pointer transition-colors"
+                      className="flex-1 w-full text-ellipsis bg-transparent border-b border-white/10 hover:border-white/30 focus:border-blue-500 py-0.5 text-xs text-white font-medium focus:outline-none cursor-pointer transition-colors"
                       value={ticket.assigned_to_id || ""}
                     >
                       <option value="" disabled className="bg-neutral-900">
@@ -527,7 +527,7 @@ function Tickets() {
               </div>
 
               {/* Requester */}
-              <div>
+              <div className="min-w-0">
                 <span className="text-[8px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Requester</span>
                 <div className="flex items-center gap-1.5">
                   <User className="w-3 h-3 text-neutral-400" />
@@ -536,7 +536,7 @@ function Tickets() {
               </div>
 
               {/* Created */}
-              <div>
+              <div className="min-w-0">
                 <span className="text-[8px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Created</span>
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3 h-3 text-neutral-400" />
@@ -547,7 +547,7 @@ function Tickets() {
               </div>
 
               {/* Updated */}
-              <div>
+              <div className="min-w-0">
                 <span className="text-[8px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Updated</span>
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3 h-3 text-neutral-400" />

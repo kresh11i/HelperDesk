@@ -62,9 +62,9 @@ function TotalTicketsChart({ tickets }) {
   const maxVal = Math.max(...dataValues, 5); // Avoid division by zero, set min peak
 
   // Chart coordinates calculation
-  const paddingX = 40;
-  const paddingY = 30;
-  const chartWidth = 440;
+  const paddingX = 30;
+  const paddingY = 15;
+  const chartWidth = 450;
   const chartHeight = 150;
 
   const points = dataValues.map((val, idx) => {
@@ -105,9 +105,9 @@ function TotalTicketsChart({ tickets }) {
         <p className="text-neutral-400 text-[10px] mb-4">Volume trend over the last 7 days</p>
       </div>
 
-      <div className="relative w-full overflow-hidden select-none" style={{ minHeight: '190px' }}>
+      <div className="relative w-full overflow-hidden select-none" style={{ minHeight: '170px' }}>
         <svg 
-          viewBox="0 0 500 210" 
+          viewBox="0 0 500 190" 
           width="100%" 
           height="100%"
           className="overflow-visible"
@@ -140,8 +140,8 @@ function TotalTicketsChart({ tickets }) {
                 <text 
                   x={paddingX - 10} 
                   y={y + 4} 
-                  fill="rgba(255,255,255,0.3)" 
-                  fontSize="9" 
+                  fill="rgba(255,255,255,0.4)" 
+                  fontSize="11" 
                   textAnchor="end"
                   fontFamily="monospace"
                 >
@@ -176,9 +176,9 @@ function TotalTicketsChart({ tickets }) {
               />
               <text 
                 x={pt.x} 
-                y={paddingY + chartHeight + 16} 
-                fill="rgba(255,255,255,0.4)" 
-                fontSize="9" 
+                y={paddingY + chartHeight + 18} 
+                fill="rgba(255,255,255,0.5)" 
+                fontSize="11" 
                 textAnchor="middle"
               >
                 {pt.label}

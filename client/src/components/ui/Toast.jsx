@@ -34,7 +34,7 @@ const Toast = ({ message, type = 'success', onClose }) => {
 
   return (
     <div 
-      className={`pointer-events-auto flex items-center justify-between gap-3 p-4 rounded-xl border backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-300 ${bg} ${glow} w-full max-w-sm`}
+      className={`pointer-events-auto flex items-center justify-between gap-3 p-4 rounded-xl border backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-top-4 md:slide-in-from-right-4 duration-300 ${bg} ${glow} w-full max-w-sm`}
       role="alert"
     >
       <div className="flex items-center gap-3 w-full overflow-hidden">

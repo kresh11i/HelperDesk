@@ -96,10 +96,10 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-min gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-12 auto-rows-min gap-4 md:gap-6">
         
         {/* Welcome Banner */}
-        <GlassCard level={1} className="md:col-span-6 p-6 md:p-8 flex flex-col justify-between min-h-[220px]">
+        <GlassCard level={1} className="col-span-2 md:col-span-6 p-6 md:p-8 flex flex-col justify-between min-h-[220px]">
           <div>
             <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-2">
               {user?.role === 1 ? 'Admin Panel' : user?.role === 2 ? 'Agent Workspace' : 'Customer Portal'}
@@ -127,7 +127,7 @@ function Dashboard() {
         </GlassCard>
 
         {/* Open Tickets */}
-        <GlassCard level={2} className="md:col-span-3 p-6 flex flex-col justify-between min-h-[220px]">
+        <GlassCard level={2} className="col-span-1 md:col-span-3 p-4 md:p-6 flex flex-col justify-between min-h-[160px] md:min-h-[220px]">
           <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Open / Reopened</h3>
           <div>
             {loading ? (
@@ -144,7 +144,7 @@ function Dashboard() {
         </GlassCard>
 
         {/* In Progress */}
-        <GlassCard level={2} className="md:col-span-3 p-6 flex flex-col justify-between min-h-[220px]">
+        <GlassCard level={2} className="col-span-1 md:col-span-3 p-4 md:p-6 flex flex-col justify-between min-h-[160px] md:min-h-[220px]">
           <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Active Progress</h3>
           <div>
             {loading ? (
@@ -161,8 +161,8 @@ function Dashboard() {
         </GlassCard>
 
         {/* Stats Stack */}
-        <div className="md:col-span-3 flex flex-col gap-4 md:gap-6 justify-between">
-          <GlassCard level={1} className="flex-1 p-6 flex flex-col justify-between min-h-[100px]">
+        <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:flex md:flex-col gap-4 md:gap-6 justify-between">
+          <GlassCard level={1} className="col-span-1 md:col-auto p-4 md:p-6 flex flex-col justify-between min-h-[120px] md:min-h-[100px]">
             <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Total Tickets</h3>
             {loading ? (
               <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
@@ -171,7 +171,7 @@ function Dashboard() {
             )}
           </GlassCard>
           
-          <GlassCard level={1} className="flex-1 p-6 flex flex-col justify-between min-h-[100px]">
+          <GlassCard level={1} className="col-span-1 md:col-auto p-4 md:p-6 flex flex-col justify-between min-h-[120px] md:min-h-[100px]">
             <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Resolved</h3>
             {loading ? (
               <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
@@ -181,7 +181,7 @@ function Dashboard() {
           </GlassCard>
 
           {user?.role === 1 && (
-            <GlassCard level={1} className="flex-1 p-6 flex flex-col justify-between min-h-[100px]">
+            <GlassCard level={1} className="col-span-2 md:col-auto p-4 md:p-6 flex flex-col justify-between min-h-[120px] md:min-h-[100px]">
               <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase flex items-center justify-between">Total Users <Users className="w-3 h-3"/></h3>
               {loading ? (
                 <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
@@ -193,7 +193,7 @@ function Dashboard() {
         </div>
 
         {/* Recent Tickets */}
-        <GlassCard level={1} className="md:col-span-9 p-6 flex flex-col min-h-[344px]">
+        <GlassCard level={1} className="col-span-2 md:col-span-9 p-4 md:p-6 flex flex-col min-h-[344px]">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Recent Tickets</h3>
             <button 
@@ -259,7 +259,7 @@ function Dashboard() {
         </GlassCard>
         
         {/* Ticket Activity Footer */}
-        <GlassCard level={1} className="md:col-span-12 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <GlassCard level={1} className="col-span-2 md:col-span-12 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase mb-2">Ticket Activity Summary</h3>
               <p className="text-neutral-300 font-medium text-sm">
