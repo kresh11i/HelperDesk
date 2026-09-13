@@ -1,6 +1,7 @@
-import React, { createContext, useState, useCallback } from 'react';
+import { createContext, useState, useCallback } from 'react';
 import Toast from '../components/ui/Toast';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ToastContext = createContext(null);
 
 export const ToastProvider = ({ children }) => {

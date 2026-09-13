@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { getTeam, inviteUser, updateRole, removeMember } from '../services/orgService';
 import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import { Shield, User, UserPlus, Mail, X, Check, CheckCircle2, ChevronDown } from 'lucide-react';
+import { Shield, UserPlus, Mail, X, Check, CheckCircle2, ChevronDown } from 'lucide-react';
 import PageContainer from '../components/layout/PageContainer';
 
 function Team() {
@@ -47,7 +47,7 @@ function Team() {
       } else {
         setError(data.message || 'Failed to load team directory');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load team directory');
     } finally {
       setLoading(false);
@@ -56,6 +56,7 @@ function Team() {
 
   useEffect(() => {
     if (user?.role === 1 || user?.role === 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchTeam();
     }
   }, [user]);
@@ -75,7 +76,7 @@ function Team() {
       } else {
         setInviteError(res.message || 'Failed to send invitation');
       }
-    } catch (err) {
+    } catch {
       setInviteError('An unexpected error occurred');
     } finally {
       setInviteLoading(false);
@@ -185,7 +186,7 @@ function Team() {
       } else {
         setManageError(res.message || 'Failed to update role');
       }
-    } catch (err) {
+    } catch {
       setManageError('An unexpected error occurred');
     } finally {
       setManageLoading(false);
@@ -210,7 +211,7 @@ function Team() {
       } else {
         setRemoveError(res.message || 'Failed to remove member');
       }
-    } catch (err) {
+    } catch {
       setRemoveError('An unexpected error occurred');
     } finally {
       setRemoveLoading(false);

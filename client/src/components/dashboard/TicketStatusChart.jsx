@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import GlassCard from '../ui/GlassCard';
 
 function TicketStatusChart({ tickets }) {

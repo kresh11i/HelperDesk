@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { fetchTickets } from '../services/ticketService';
@@ -10,8 +10,6 @@ import { ArrowRight, AlertCircle, ClipboardList, Users } from 'lucide-react';
 
 import TotalTicketsChart from '../components/dashboard/TotalTicketsChart';
 import TicketStatusChart from '../components/dashboard/TicketStatusChart';
-import TicketStats from '../components/dashboard/TicketStats';
-import AdditionalStats from '../components/dashboard/AdditionalStats';
 import PageContainer from '../components/layout/PageContainer';
 
 function Dashboard() {
@@ -75,7 +73,7 @@ function Dashboard() {
   const recentTickets = [...userTickets].reverse().slice(0, 4);
 
   // Skeletons
-  const MetricsSkeleton = () => (
+  const renderMetricsSkeleton = () => (
     <div className="animate-pulse flex flex-col justify-between h-full min-h-[140px]">
       <div className="h-2 w-1/3 bg-white/10 rounded"></div>
       <div className="h-12 w-1/2 bg-white/10 rounded mt-4"></div>
@@ -131,7 +129,7 @@ function Dashboard() {
           <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Open / Reopened</h3>
           <div>
             {loading ? (
-              <MetricsSkeleton />
+              renderMetricsSkeleton()
             ) : (
               <>
                 <div className="text-6xl md:text-7xl font-light tracking-tighter text-white mb-1">
@@ -148,7 +146,7 @@ function Dashboard() {
           <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Active Progress</h3>
           <div>
             {loading ? (
-              <MetricsSkeleton />
+              renderMetricsSkeleton()
             ) : (
               <>
                 <div className="text-6xl md:text-7xl font-light tracking-tighter text-white mb-1">

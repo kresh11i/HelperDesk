@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import { MessageSquare } from 'lucide-react';
+import { useEffect, useRef, Fragment } from 'react';
 import MessageBubble from './MessageBubble';
 
 function getDateLabel(dateStr) {
@@ -45,12 +44,9 @@ function MessageList({ comments, currentUserId, getRoleName, loading }) {
     );
   }
 
-  // Group messages by date for sticky date dividers
-  let lastDateLabel = null;
-
   return (
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scrollbar-thin scrollbar-thumb-white/10">
-      {comments.map((c) => {
+      {comments.map((c, index) => {
         const isOwn = c.user_id === currentUserId;
         const commenterName = isOwn ? (c.user?.name || 'You') : (c.user?.name || 'User');
         const commenterRole = isOwn
@@ -59,11 +55,12 @@ function MessageList({ comments, currentUserId, getRoleName, loading }) {
 
         // Date divider
         const dateLabel = c.created_at ? getDateLabel(c.created_at) : null;
-        const showDateDivider = dateLabel && dateLabel !== lastDateLabel;
-        if (showDateDivider) lastDateLabel = dateLabel;
+        const prevComment = index > 0 ? comments[index - 1] : null;
+        const prevDateLabel = prevComment && prevComment.created_at ? getDateLabel(prevComment.created_at) : null;
+        const showDateDivider = dateLabel && dateLabel !== prevDateLabel;
 
         return (
-          <React.Fragment key={c.comment_id}>
+          <Fragment key={c.comment_id}>
             {showDateDivider && (
               <div className="flex items-center gap-3 my-1 select-none">
                 <div className="flex-1 h-px bg-white/5" />
@@ -79,7 +76,7 @@ function MessageList({ comments, currentUserId, getRoleName, loading }) {
               userName={commenterName}
               userRole={commenterRole}
             />
-          </React.Fragment>
+          </Fragment>
         );
       })}
       <div ref={endRef} />

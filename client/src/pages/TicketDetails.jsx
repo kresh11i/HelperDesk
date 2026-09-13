@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { ToastContext } from "../contexts/ToastContext";
 import {
-  fetchTickets,
   fetchTicketById,
   updateTicketStatus,
   assignTicket,
@@ -13,7 +12,6 @@ import {
   createComment,
   fetchAgents,
 } from "../services/ticketService";
-import GlassCard from "../components/ui/GlassCard";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import {
@@ -29,12 +27,8 @@ import {
   CheckCircle2,
   Play,
   RotateCcw,
-  Phone,
-  MoreVertical,
   Paperclip,
-  Check,
   CheckCheck,
-  Search,
 } from "lucide-react";
 
 function TicketDetails() {
@@ -56,10 +50,8 @@ function TicketDetails() {
   const [editDescription, setEditDescription] = useState("");
   const [editPriority, setEditPriority] = useState("Medium");
 
-  // Comments State
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
-  const [commentsLoading, setCommentsLoading] = useState(true);
 
   // Agents list (Admin only)
   const [agents, setAgents] = useState([]);
@@ -115,14 +107,14 @@ function TicketDetails() {
       }
     } catch (err) {
       console.error("Failed to load comments:", err);
-    } finally {
-      setCommentsLoading(false);
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadTicket();
     loadComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
@@ -196,8 +188,7 @@ function TicketDetails() {
       const data = await updateTicketStatus(
         id,
         nextStatus,
-        ticket.status,
-        user?.role,
+        ticket.status
       );
       if (data.status === 200) {
         showToast(`Status updated to ${nextStatus}.`, "success");

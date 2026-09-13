@@ -1,4 +1,3 @@
-import React from 'react';
 import GlassCard from '../ui/GlassCard';
 import Badge from '../ui/Badge';
 import { ArrowRight, ClipboardList } from 'lucide-react';

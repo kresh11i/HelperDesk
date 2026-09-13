@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
@@ -54,7 +54,7 @@ function OrgSetup() {
         // Assuming url is like http://domain/invite/:token
         tokenToUse = parts[parts.length - 1];
       }
-    } catch (e) {
+    } catch {
       // Ignore if not a valid URL, maybe they pasted just the token
     }
     

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import GlassCard from '../components/ui/GlassCard';
 import Badge from '../components/ui/Badge';
@@ -19,7 +19,6 @@ import {
   Edit,
   Trash2,
   X,
-  Lock,
   CheckCircle2,
   Play,
   RotateCcw,
@@ -55,9 +54,6 @@ function Tickets() {
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [assigneeFilter, setAssigneeFilter] = useState('All');
   const [queueTab, setQueueTab] = useState('all');
-
-  const [sortField, setSortField] = useState('created_at');
-  const [sortAsc, setSortAsc] = useState(false);
 
   const [modalPriorityFilter, setModalPriorityFilter] = useState('All');
   const [modalAssigneeFilter, setModalAssigneeFilter] = useState('All');
@@ -111,7 +107,10 @@ function Tickets() {
     }
   };
 
-  useEffect(() => { loadTickets(); }, []);
+  useEffect(() => { 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadTickets(); 
+  }, []);
 
   const loadSelectedTicket = async () => {
     if (!id) { setTicket(null); setComments([]); return; }
@@ -159,9 +158,11 @@ function Tickets() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSelectedTicket();
     loadSelectedComments();
     setDetailDrawerOpen(false); // close drawer when ticket changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
@@ -206,10 +207,7 @@ function Tickets() {
     setFilterOpen(true);
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) { setSortAsc(!sortAsc); }
-    else { setSortField(field); setSortAsc(field === 'title' || field === 'status' || field === 'assigned_to'); }
-  };
+
 
   // ─── Ticket Action Handlers ────────────────────────────────────────────────
   const updateTicketState = (ticketId, updates) => {
@@ -238,7 +236,7 @@ function Tickets() {
   const handleStatusTransition = async (nextStatus) => {
     setUpdating(true);
     try {
-      const data = await updateTicketStatus(id, nextStatus, ticket.status, user?.role);
+      const data = await updateTicketStatus(id, nextStatus, ticket.status);
       if (data.status === 200) {
         updateTicketState(id, { status: data.data?.status || nextStatus });
         showToast(`Status updated to ${nextStatus}.`, 'success');
@@ -385,7 +383,7 @@ function Tickets() {
   const filteredTickets = tabScopedTickets.filter((t) => {
     const matchesSearch = t.title.toLowerCase().includes(search.toLowerCase()) ||
       String(t.ticket_id).toLowerCase().includes(search.toLowerCase());
-    let matchesStatus = false;
+    let matchesStatus;
     if (statusFilter === 'All Status') matchesStatus = true;
     else if (statusFilter.toLowerCase() === 'resolved') {
       matchesStatus = t.status?.toLowerCase() === 'resolved' || t.status?.toLowerCase() === 'closed';
@@ -393,7 +391,7 @@ function Tickets() {
       matchesStatus = t.status?.toLowerCase() === statusFilter.toLowerCase();
     }
     const matchesPriority = priorityFilter === 'All' || t.priority?.toLowerCase() === priorityFilter.toLowerCase();
-    let matchesAssignee = false;
+    let matchesAssignee;
     if (assigneeFilter === 'All') matchesAssignee = true;
     else if (assigneeFilter === 'Unassigned') matchesAssignee = !t.assigned_to;
     else matchesAssignee = t.assigned_to === assigneeFilter;
@@ -401,18 +399,9 @@ function Tickets() {
   });
 
   const sortedTickets = [...filteredTickets].sort((a, b) => {
-    let valA = a[sortField] || '';
-    let valB = b[sortField] || '';
-    if (sortField === 'created_at') {
-      valA = new Date(valA).getTime();
-      valB = new Date(valB).getTime();
-    } else {
-      valA = String(valA).toLowerCase();
-      valB = String(valB).toLowerCase();
-    }
-    if (valA < valB) return sortAsc ? -1 : 1;
-    if (valA > valB) return sortAsc ? 1 : -1;
-    return 0;
+    const valA = new Date(a.created_at || 0).getTime();
+    const valB = new Date(b.created_at || 0).getTime();
+    return valB - valA; // descending
   });
 
   const statusPills = ['All Status', 'Open', 'In Progress', 'Resolved', 'Closed'];
@@ -433,7 +422,7 @@ function Tickets() {
   );
 
   // ─── Ticket Detail Shared Content ─────────────────────────────────────────
-  const TicketDetailContent = () => {
+  const renderTicketDetailContent = () => {
     if (!ticket) return null;
     return (
       <div className="flex flex-col gap-4">
@@ -568,7 +557,7 @@ function Tickets() {
   // On desktop (lg+): two-column layout always.
 
   const showConversation = !!id;
-  const showQueueOnMobile = !id;
+
 
   return (
     <div className="w-full text-white h-[calc(100vh-140px)] min-h-[600px] flex flex-col lg:flex-row gap-4 overflow-hidden">
@@ -694,7 +683,7 @@ function Tickets() {
                       </div>
                       <p className="text-xs font-medium text-white group-hover:text-blue-300 transition-colors truncate">{row.title}</p>
                       <p className="text-[9px] text-neutral-500 mt-0.5">
-                        {new Date(row.created_at || Date.now()).toLocaleDateString()}
+                        {row.created_at ? new Date(row.created_at).toLocaleDateString() : 'Unknown'}
                         {row.assigned_to && <span className="ml-2 text-blue-400">Assigned: {row.assigned_to}</span>}
                       </p>
                     </div>
@@ -729,7 +718,7 @@ function Tickets() {
                 <h3 className="text-[9px] font-bold tracking-widest text-neutral-500 uppercase">Ticket Details</h3>
                 <button onClick={() => navigate('/tickets')} className="text-neutral-500 hover:text-white text-xs cursor-pointer">✕</button>
               </div>
-              <TicketDetailContent />
+              {renderTicketDetailContent()}
             </GlassCard>
 
             {/* CARD 3: Ticket Actions */}
@@ -869,7 +858,7 @@ function Tickets() {
               </button>
             </div>
 
-            <TicketDetailContent />
+            {renderTicketDetailContent()}
 
             {/* Actions inside drawer on mobile */}
             {(canManageStatus || canEditTicket || canDeleteTicket) && !isEditing && (

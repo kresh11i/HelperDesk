@@ -1,12 +1,12 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import { useState, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import BottomNav from '../components/navigation/BottomNav';
-import { Search, Bell, LogOut, User, Settings, CheckCircle2, ChevronDown, Shield } from 'lucide-react';
+import { Search, Bell, LogOut, User, CheckCircle2 } from 'lucide-react';
 import GlassCard from '../components/ui/GlassCard';
 
 function DashboardLayout({ children }) {
-  const { user, setUser, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);

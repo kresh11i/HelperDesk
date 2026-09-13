@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ToastProvider } from "../contexts/ToastContext";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
@@ -7,7 +7,6 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
 import Tickets from "../pages/Tickets";
-import TicketDetails from "../pages/TicketDetails";
 import CreateTicket from "../pages/CreateTicket";
 import KnowledgeBase from "../pages/KnowledgeBase";
 import Team from "../pages/Team";

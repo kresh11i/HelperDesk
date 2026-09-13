@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowLeft, Info } from 'lucide-react';
 
 function ConversationHeader({ customerName, ticketId, createdAt, onBack, onShowDetails }) {

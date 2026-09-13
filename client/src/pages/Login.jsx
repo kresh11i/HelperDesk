@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import GlassCard from '../components/ui/GlassCard';
@@ -33,10 +33,7 @@ function Login() {
     }
   };
 
-  const handleDemoLogin = async (demoEmail) => {
-    setEmail(demoEmail);
-    setPassword('password123'); // Demo passwords could be anything in our mock
-  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative z-10">

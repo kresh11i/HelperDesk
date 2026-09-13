@@ -1,4 +1,3 @@
-import React from 'react';
 import GlassCard from '../ui/GlassCard';
 import { Users, AlertCircle, Play, CheckCircle2 } from 'lucide-react';
 

@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import GlassCard from '../components/ui/GlassCard';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
-import { User, Mail, Shield, Building, Clock, LogOut, Edit2 } from 'lucide-react';
+import { User, Mail, Shield, Building } from 'lucide-react';
 import PageContainer from '../components/layout/PageContainer';
 
 function Account() {

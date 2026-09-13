@@ -1,4 +1,3 @@
-import React from 'react';
 import { Paperclip, Send, Lock } from 'lucide-react';
 
 function MessageComposer({ value, onChange, onSubmit, canComment, isAgent, isClosed, lockMessage, onAttachment, hasAssignment, onAssignToMe, isUpdating }) {

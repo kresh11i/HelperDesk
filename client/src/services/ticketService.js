@@ -31,9 +31,9 @@ export const assignTicket = async (id, assignedToUserId) => {
   return response.data;
 };
 
-export const updateTicketStatus = async (id, status, currentStatus, userRole) => {
+export const updateTicketStatus = async (id, status, currentStatus) => {
   // Map lowercase to PascalCase expected by backend
-  let backendStatus = '';
+  let backendStatus;
   const cleanStatus = status?.toLowerCase();
   
   if (cleanStatus === 'open') {

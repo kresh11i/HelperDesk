@@ -1,4 +1,3 @@
-import React from 'react';
 
 const PageContainer = ({ children, maxWidth = 'full', className = '' }) => {
   const maxWidthClass = {

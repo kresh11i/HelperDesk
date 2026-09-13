@@ -1,7 +1,6 @@
-import React from 'react';
 import { CheckCheck } from 'lucide-react';
 
-function MessageBubble({ comment, isOwn, userName, userRole, commentsEndRef }) {
+function MessageBubble({ comment, isOwn, userName, userRole }) {
   const initials = userName ? userName.substring(0, 2).toUpperCase() : 'U';
   const timeStr = comment.created_at
     ? new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

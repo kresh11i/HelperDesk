@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 
 const GlassCard = ({ children, level = 1, className = '', ...props }) => {
   const cardRef = useRef(null);
