@@ -51,40 +51,38 @@ function CreateTicket() {
         <p className="text-neutral-400">Tell us what you need help with.</p>
       </div>
 
-      <GlassCard level={1} className="p-6 md:p-8">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      <GlassCard level={1} className="p-5 md:p-6 flex-1 flex flex-col">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-5">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg text-center">
               {error}
             </div>
           )}
           
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Title</label>
             <input 
               type="text" 
               placeholder="Brief summary of the issue"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors"
               required
             />
-            <p className="text-xs text-neutral-500 mt-1">A clear summary helps our team respond faster.</p>
           </div>
           
-          <div className="flex flex-col gap-2">
+          <div className="flex-1 flex flex-col gap-1.5">
             <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Description</label>
             <textarea 
-              rows={5}
               placeholder="Describe the issue in detail. Include steps to reproduce, error messages, and what you expected to happen."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors resize-none"
+              className="w-full flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors resize-none"
               required
             />
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <label className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Priority</label>
             <div className="grid grid-cols-3 gap-3">
               {['Low', 'Medium', 'High'].map((p) => (
@@ -92,15 +90,15 @@ function CreateTicket() {
                   key={p}
                   type="button"
                   onClick={() => setPriority(p)}
-                  className={`py-3 px-2 rounded-lg border flex flex-col items-center justify-center transition-all ${
+                  className={`py-2 px-2 rounded-lg border flex flex-col items-center justify-center transition-all ${
                     priority === p 
                       ? 'bg-white text-black border-white' 
                       : 'bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10'
                   }`}
                 >
-                  <span className="font-semibold text-sm mb-0.5">{p}</span>
-                  <span className={`text-[10px] ${priority === p ? 'text-neutral-700' : 'text-neutral-500'}`}>
-                    {p === 'Low' ? 'Minor issue, can wait' : p === 'Medium' ? 'Affects work somewhat' : 'Urgent, blocking work'}
+                  <span className="font-semibold text-xs mb-0.5">{p}</span>
+                  <span className={`text-[9px] ${priority === p ? 'text-neutral-700' : 'text-neutral-500'}`}>
+                    {p === 'Low' ? 'Minor issue' : p === 'Medium' ? 'Affects work' : 'Urgent'}
                   </span>
                 </button>
               ))}

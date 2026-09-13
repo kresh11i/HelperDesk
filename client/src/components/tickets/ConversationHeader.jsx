@@ -8,17 +8,17 @@ function ConversationHeader({ customerName, ticketId, createdAt, onBack, onShowD
       <div className="flex items-center gap-3 min-w-0">
         {/* Back Arrow visible on Mobile (onBack provided) */}
         {onBack && (
-          <button 
+          <button
             onClick={onBack}
-            className="lg:hidden p-1 -ml-1 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="lg:hidden flex items-center justify-center p-1 -ml-1 text-neutral-400 hover:text-white transition-colors cursor-pointer"
             title="Back to Queue"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
         )}
 
         {/* Profile Avatar / Indicator */}
-        <div 
+        <div
           onClick={onShowDetails}
           className="relative w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xs font-bold text-neutral-300 uppercase cursor-pointer"
         >
@@ -28,7 +28,7 @@ function ConversationHeader({ customerName, ticketId, createdAt, onBack, onShowD
         </div>
 
         {/* Text Information (Clickable to view details on mobile/desktop) */}
-        <div 
+        <div
           onClick={onShowDetails}
           className="flex flex-col min-w-0 cursor-pointer"
         >
@@ -44,10 +44,10 @@ function ConversationHeader({ customerName, ticketId, createdAt, onBack, onShowD
       {/* Info Icon Button (to open details overlay/drawer) */}
       <button
         onClick={onShowDetails}
-        className="p-1.5 rounded-full hover:bg-white/5 text-neutral-400 hover:text-white transition-all cursor-pointer"
+        className="flex items-center justify-center p-2 rounded-full hover:bg-white/5 text-neutral-400 hover:text-white transition-all cursor-pointer"
         title="View Ticket Details"
       >
-        <Info className="w-4 h-4" />
+        <Info className="w-5 h-5" />
       </button>
     </div>
   );

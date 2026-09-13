@@ -48,8 +48,8 @@ function Dashboard() {
   }, [user]);
 
   // Filter tickets by creator if role is End User (3)
-  const userTickets = user?.role === 3 
-    ? tickets.filter(t => t.created_by === user.user_id) 
+  const userTickets = user?.role === 3
+    ? tickets.filter(t => t.created_by === user.user_id)
     : tickets;
 
   const openTickets = userTickets.filter(t => {
@@ -68,7 +68,7 @@ function Dashboard() {
   }).length;
 
   const myTicketsCount = tickets.filter(t => t.assigned_to === user?.name).length;
-  
+
   // Sort descending by created time
   const recentTickets = [...userTickets].reverse().slice(0, 4);
 
@@ -86,7 +86,7 @@ function Dashboard() {
 
   return (
     <PageContainer>
-      
+
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3">
           <AlertCircle className="w-5 h-5 shrink-0" />
@@ -94,24 +94,24 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-12 auto-rows-min gap-4 md:gap-6">
-        
+      <div className="grid grid-cols-2 md:grid-cols-12 auto-rows-min gap-4 md:gap-4">
+
         {/* Welcome Banner */}
-        <GlassCard level={1} className="col-span-2 md:col-span-6 p-6 md:p-8 flex flex-col justify-between min-h-[220px]">
+        <GlassCard level={1} className="col-span-2 md:col-span-6 p-6 md:p-8 flex flex-col justify-between min-h-[160px] md:min-h-[150px]">
           <div>
             <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-2">
               {user?.role === 1 ? 'Admin Panel' : user?.role === 2 ? 'Agent Workspace' : 'Customer Portal'}
             </h3>
-            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-2 truncate">{user?.name || 'User'}</h1>
+            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-white pb-2 truncate">{user?.name || 'User'}</h1>
             <p className="text-neutral-400 text-sm max-w-sm leading-relaxed">
-              {user?.role === 1 
-                ? 'Manage tickets, track agent workloads, and view organization statistics.' 
-                : user?.role === 2 
+              {user?.role === 1
+                ? 'Manage tickets, track agent workloads, and view organization statistics.'
+                : user?.role === 2
                   ? `You have ${myTicketsCount} ticket${myTicketsCount !== 1 ? 's' : ''} assigned to you.`
                   : 'Submit new issues or track the status of your existing requests.'}
             </p>
           </div>
-          <div className="mt-8">
+          <div className="mt-6 md:mt-8">
             {user?.role === 3 ? (
               <Button variant="primary" onClick={() => navigate('/create')}>
                 + Create Ticket
@@ -125,7 +125,7 @@ function Dashboard() {
         </GlassCard>
 
         {/* Open Tickets */}
-        <GlassCard level={2} className="col-span-1 md:col-span-3 p-4 md:p-6 flex flex-col justify-between min-h-[160px] md:min-h-[220px]">
+        <GlassCard level={2} className="col-span-1 md:col-span-3 p-4 md:p-6 flex flex-col justify-between min-h-[140px] md:min-h-[150px]">
           <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Open / Reopened</h3>
           <div>
             {loading ? (
@@ -142,7 +142,7 @@ function Dashboard() {
         </GlassCard>
 
         {/* In Progress */}
-        <GlassCard level={2} className="col-span-1 md:col-span-3 p-4 md:p-6 flex flex-col justify-between min-h-[160px] md:min-h-[220px]">
+        <GlassCard level={2} className="col-span-1 md:col-span-3 p-4 md:p-6 flex flex-col justify-between min-h-[140px] md:min-h-[150px]">
           <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Active Progress</h3>
           <div>
             {loading ? (
@@ -159,42 +159,42 @@ function Dashboard() {
         </GlassCard>
 
         {/* Stats Stack */}
-        <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:flex md:flex-col gap-4 md:gap-6 justify-between">
-          <GlassCard level={1} className="col-span-1 md:col-auto p-4 md:p-6 flex flex-col justify-between min-h-[120px] md:min-h-[100px]">
+        <div className="col-span-2 md:col-span-3 grid grid-cols-2 md:flex md:flex-col gap-4 md:gap-4 justify-between h-full">
+          <GlassCard level={1} className="col-span-1 md:col-auto p-4 md:p-5 flex flex-col justify-between min-h-[120px] md:min-h-[90px] md:flex-1">
             <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Total Tickets</h3>
             {loading ? (
               <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
             ) : (
-              <div className="text-4xl font-light tracking-tighter text-white mt-2">{userTickets.length}</div>
+              <div className="text-4xl font-light tracking-tighter text-white mt-1">{userTickets.length}</div>
             )}
           </GlassCard>
-          
-          <GlassCard level={1} className="col-span-1 md:col-auto p-4 md:p-6 flex flex-col justify-between min-h-[120px] md:min-h-[100px]">
+
+          <GlassCard level={1} className="col-span-1 md:col-auto p-4 md:p-5 flex flex-col justify-between min-h-[120px] md:min-h-[90px] md:flex-1">
             <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">Resolved</h3>
             {loading ? (
               <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
             ) : (
-              <div className="text-4xl font-light tracking-tighter text-white mt-2">{resolvedTickets}</div>
+              <div className="text-4xl font-light tracking-tighter text-white mt-1">{resolvedTickets}</div>
             )}
           </GlassCard>
 
           {user?.role === 1 && (
-            <GlassCard level={1} className="col-span-2 md:col-auto p-4 md:p-6 flex flex-col justify-between min-h-[120px] md:min-h-[100px]">
-              <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase flex items-center justify-between">Total Users <Users className="w-3 h-3"/></h3>
+            <GlassCard level={1} className="col-span-2 md:col-auto p-4 md:p-5 flex flex-col justify-between min-h-[120px] md:min-h-[90px] md:flex-1">
+              <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase flex items-center justify-between">Total Users <Users className="w-3 h-3" /></h3>
               {loading ? (
                 <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
               ) : (
-                <div className="text-4xl font-light tracking-tighter text-white mt-2">{totalUsers}</div>
+                <div className="text-4xl font-light tracking-tighter text-white mt-1">{totalUsers}</div>
               )}
             </GlassCard>
           )}
         </div>
 
         {/* Recent Tickets */}
-        <GlassCard level={1} className="col-span-2 md:col-span-9 p-4 md:p-6 flex flex-col min-h-[344px]">
-          <div className="flex justify-between items-center mb-6">
+        <GlassCard level={1} className="col-span-2 md:col-span-9 p-4 md:p-5 flex flex-col h-full min-h-[200px]">
+          <div className="flex justify-between items-center mb-4">
             <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Recent Tickets</h3>
-            <button 
+            <button
               onClick={() => navigate('/tickets')}
               className="text-xs text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
             >
@@ -216,13 +216,13 @@ function Dashboard() {
                 ))}
               </div>
             ) : recentTickets.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-6 text-center text-neutral-500 gap-3">
-                <ClipboardList className="w-12 h-12 stroke-[1.5]" />
+              <div className="flex flex-col items-center justify-center py-4 text-center text-neutral-500 gap-3">
+                <ClipboardList className="w-10 h-10 stroke-[1.5]" />
                 <div>
                   <p className="text-sm font-semibold text-white">No active tickets</p>
                   <p className="text-xs">
-                    {user?.role === 3 
-                      ? "You haven't created any support tickets yet." 
+                    {user?.role === 3
+                      ? "You haven't created any support tickets yet."
                       : 'No tickets are currently logged for your organization.'}
                   </p>
                 </div>
@@ -230,10 +230,10 @@ function Dashboard() {
             ) : (
               <div className="flex flex-col h-full justify-start">
                 {recentTickets.map((ticket) => (
-                  <div 
-                    key={ticket.ticket_id} 
+                  <div
+                    key={ticket.ticket_id}
                     onClick={() => navigate(`/tickets/${ticket.ticket_id}`)}
-                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 py-4 group cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors"
+                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 py-3 group cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -242,8 +242,8 @@ function Dashboard() {
                       </div>
                       <h4 className="font-medium text-sm text-neutral-200 group-hover:text-blue-300 transition-colors truncate pr-4">{ticket.title}</h4>
                     </div>
-                    
-                    <div className="flex items-center gap-3 mt-2 md:mt-0 justify-between md:justify-end shrink-0">
+
+                    <div className="flex items-center gap-3 mt-1 md:mt-0 justify-between md:justify-end shrink-0">
                       <Badge variant={ticket.status?.toLowerCase() === 'open' ? 'open' : (ticket.status?.toLowerCase() === 'closed' || ticket.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')} className="capitalize text-[10px] px-2.5 py-0.5">
                         <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${ticket.status?.toLowerCase() === 'open' ? 'bg-white' : 'bg-neutral-500'}`}></span>
                         {ticket.status}
@@ -255,22 +255,22 @@ function Dashboard() {
             )}
           </div>
         </GlassCard>
-        
+
         {/* Ticket Activity Footer */}
-        <GlassCard level={1} className="col-span-2 md:col-span-12 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase mb-2">Ticket Activity Summary</h3>
-              <p className="text-neutral-300 font-medium text-sm">
-                {userTickets.length} total &middot; {openTickets} open &middot; {resolvedTickets} resolved
-              </p>
-            </div>
-            
-            <button 
-              onClick={() => navigate('/tickets')}
-              className="text-sm text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
-            >
-              View entire queue <ArrowRight className="w-4 h-4" />
-            </button>
+        <GlassCard level={1} className="col-span-2 md:col-span-12 p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase mb-1">Ticket Activity Summary</h3>
+            <p className="text-neutral-300 font-medium text-sm">
+              {userTickets.length} total &middot; {openTickets} open &middot; {resolvedTickets} resolved
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/tickets')}
+            className="text-sm text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
+          >
+            View entire queue <ArrowRight className="w-4 h-4" />
+          </button>
         </GlassCard>
 
       </div>

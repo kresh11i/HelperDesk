@@ -7,6 +7,7 @@ const router = express.Router();
 router.post("/create", authenticateUser, orgController.createOrganization);
 router.post("/invite/accept", authenticateUser, orgController.acceptInvite);
 
+router.get("/current", authenticateUser, requireOrganization, orgController.getOrganization);
 router.get("/team", authenticateUser, requireOrganization, orgController.getTeam);
 router.post("/invite", authenticateUser, requireOrganization, orgController.inviteUser);
 router.patch("/member/:id/role", authenticateUser, requireOrganization, orgController.updateRole);

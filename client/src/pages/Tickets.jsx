@@ -107,9 +107,9 @@ function Tickets() {
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadTickets(); 
+    loadTickets();
   }, []);
 
   const loadSelectedTicket = async () => {
@@ -231,6 +231,19 @@ function Tickets() {
       } else showToast(data.message || 'Failed to assign ticket.', 'error');
     } catch (err) { console.error(err); showToast('Error during assignment.', 'error'); }
     finally { setAssigningTicketId(null); }
+  };
+
+  const handleAssignAgent = async (agentId) => {
+    if (!agentId) return;
+    setUpdating(true);
+    try {
+      const data = await assignTicket(id, agentId);
+      if (data.status === 200 && data.ticket) {
+        updateTicketState(id, data.ticket);
+        showToast('Ticket assigned successfully.', 'success');
+      } else showToast(data.message || 'Failed to assign ticket.', 'error');
+    } catch (err) { console.error(err); showToast('Error during assignment.', 'error'); }
+    finally { setUpdating(false); }
   };
 
   const handleStatusTransition = async (nextStatus) => {
@@ -374,10 +387,10 @@ function Tickets() {
 
   const tabScopedTickets = user?.role !== 3
     ? scopedTickets.filter((t) => {
-        if (queueTab === 'mine') return t.assigned_to === user?.name;
-        if (queueTab === 'unassigned') return !t.assigned_to;
-        return true;
-      })
+      if (queueTab === 'mine') return t.assigned_to === user?.name;
+      if (queueTab === 'unassigned') return !t.assigned_to;
+      return true;
+    })
     : scopedTickets;
 
   const filteredTickets = tabScopedTickets.filter((t) => {
@@ -482,7 +495,7 @@ function Tickets() {
               {/* Assignee */}
               <div className="min-w-0">
                 <span className="text-[8px] font-bold tracking-wider text-neutral-500 uppercase block mb-1">Assignee</span>
-                
+
                 {(!isAdmin || agents.length === 0) ? (
                   <div className="flex items-center gap-1.5">
                     <User className="w-3 h-3 text-neutral-400" />
@@ -492,9 +505,9 @@ function Tickets() {
                   <div className="flex items-center gap-1.5">
                     <User className="w-3 h-3 text-neutral-400 shrink-0" />
                     <select
-                      onChange={(e) => handleAdminAssign(e.target.value)}
-                      disabled={updating}
-                      className="flex-1 w-full text-ellipsis bg-transparent border-b border-white/10 hover:border-white/30 focus:border-blue-500 py-0.5 text-xs text-white font-medium focus:outline-none cursor-pointer transition-colors"
+                      onChange={(e) => handleAssignAgent(e.target.value)}
+                      disabled={updating || isClosedTicket}
+                      className="flex-1 w-full text-ellipsis bg-transparent border-b border-white/10 hover:border-white/30 focus:border-blue-500 py-0.5 text-xs text-white font-medium focus:outline-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       value={ticket.assigned_to_id || ""}
                     >
                       <option value="" disabled className="bg-neutral-900">
@@ -507,7 +520,7 @@ function Tickets() {
                   </div>
                 )}
 
-                {isAgent && !ticket.assigned_to && (
+                {isAgent && !ticket.assigned_to && !isClosedTicket && (
                   <button onClick={handleSelfAssign} disabled={updating}
                     className="text-[9px] text-blue-400 hover:text-blue-300 font-semibold mt-1 block cursor-pointer">
                     Assign to me
@@ -560,16 +573,16 @@ function Tickets() {
 
 
   return (
-    <div className="w-full text-white h-[calc(100vh-140px)] min-h-[600px] flex flex-col lg:flex-row gap-4 overflow-hidden">
+    <div className="w-full text-white flex-1 min-h-[600px] flex flex-col lg:flex-row gap-4 overflow-hidden pb-24 md:pb-28">
 
       {/* ═══════════════════════════════════════════════════════
           LEFT COLUMN — Queue + Detail + Actions (stacked)
           Mobile: hidden when conversation is active
           ═══════════════════════════════════════════════════════ */}
-      <div className={`flex flex-col gap-4 lg:w-[42%] lg:flex-shrink-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 pb-24 lg:pb-0 pr-1 md:pr-0 ${showConversation ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`flex flex-col gap-4 transition-all duration-500 pr-1 md:pr-0 ${showConversation ? 'hidden lg:flex lg:w-[42%] lg:flex-shrink-0' : 'flex w-full lg:w-full lg:flex-shrink-0'}`}>
 
         {/* ── CARD 1: Ticket Queue ── */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 flex-1 min-h-0">
           {/* Queue header */}
           <div className="flex items-center justify-between">
             <div>
@@ -654,7 +667,7 @@ function Tickets() {
           </div>
 
           {/* Ticket List — Card layout on all screens (replaces overflowing table) */}
-          <GlassCard level={1} className="overflow-hidden">
+          <GlassCard level={1} className="overflow-hidden flex-1 flex flex-col">
             {loading ? (
               <div className="flex flex-col">{[1, 2, 3, 4].map((n) => <CardSkeleton key={n} />)}</div>
             ) : sortedTickets.length === 0 ? (
@@ -664,42 +677,70 @@ function Tickets() {
                 <p className="text-[10px]">Adjust filters or search queries.</p>
               </div>
             ) : (
-              <div className="flex flex-col divide-y divide-white/5">
+              <div className="flex flex-col divide-y divide-white/5 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
                 {sortedTickets.map((row) => (
                   <div key={row.ticket_id}
                     onClick={() => navigate(`/tickets/${row.ticket_id}`)}
-                    className={`flex items-center gap-3 px-3 py-3 hover:bg-white/5 cursor-pointer transition-colors group ${row.ticket_id === id ? 'bg-white/7 border-l-2 border-l-blue-500' : ''}`}
+                    className={`flex items-center gap-3 px-4 py-3.5 hover:bg-white/5 cursor-pointer transition-colors group ${row.ticket_id === id ? 'bg-white/7 border-l-2 border-l-blue-500' : 'border-b border-white/5 last:border-0'}`}
                     style={row.ticket_id === id ? { background: 'rgba(255,255,255,0.05)' } : {}}
                   >
                     {/* Initials Avatar */}
-                    <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-[9px] font-bold text-neutral-400 uppercase">
+                    <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-[10px] font-bold text-neutral-400 uppercase">
                       {(row.created_user?.name || row.title || 'U').substring(0, 2)}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-[9px] text-neutral-500 font-mono">#{String(row.ticket_id).slice(-4)}</span>
+                    {/* Column 1: ID, Title, Priority */}
+                    <div className={`flex flex-col min-w-0 ${!showConversation ? 'lg:w-[35%] lg:flex-none' : 'flex-1'}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[9px] text-neutral-500 font-mono font-medium">#{String(row.ticket_id).slice(-4)}</span>
                         <Badge variant={row.priority?.toLowerCase() || 'medium'} className="text-[7px] px-1 py-0 uppercase">{row.priority}</Badge>
                       </div>
-                      <p className="text-xs font-medium text-white group-hover:text-blue-300 transition-colors truncate">{row.title}</p>
-                      <p className="text-[9px] text-neutral-500 mt-0.5">
+                      <p className="text-[13px] font-medium text-white group-hover:text-blue-300 transition-colors truncate pr-4">{row.title}</p>
+
+                      {/* Mobile fallback details / Compact view details */}
+                      <p className={`text-[10px] text-neutral-500 mt-0.5 ${!showConversation ? 'lg:hidden' : ''}`}>
                         {row.created_at ? new Date(row.created_at).toLocaleDateString() : 'Unknown'}
                         {row.assigned_to && <span className="ml-2 text-blue-400">Assigned: {row.assigned_to}</span>}
                       </p>
                     </div>
 
-                    <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      {user?.role === 2 && !row.assigned_to && (
+                    {/* Column 2: Description Snippet (Only visible on Desktop when Expanded) */}
+                    {!showConversation && (
+                      <div className="hidden lg:block flex-1 min-w-0 px-4">
+                        <p className="text-[11px] text-neutral-400 truncate w-full">{row.description || 'No description provided.'}</p>
+                      </div>
+                    )}
+
+                    {/* Column 3: Status, Assignee, Date (Adjusts based on view) */}
+                    <div className={`flex items-end shrink-0 gap-2 ${!showConversation ? 'lg:flex-row lg:items-center lg:w-[25%] lg:justify-end lg:flex-none' : 'flex-col'}`}>
+
+                      {/* Date (Only in expanded view) */}
+                      {!showConversation && (
+                        <span className="hidden lg:inline-block text-[10px] text-neutral-500 w-24 text-right mr-3 font-medium">
+                          {row.created_at ? new Date(row.created_at).toLocaleDateString() : ''}
+                        </span>
+                      )}
+
+                      {/* Status / Assign Button */}
+                      {user?.role === 2 && !row.assigned_to ? (
                         <button onClick={(e) => { e.stopPropagation(); handleSelfAssignRow(row.ticket_id); }}
                           disabled={assigningTicketId === row.ticket_id}
-                          className="text-[9px] bg-white text-black px-2 py-1 rounded font-semibold hover:bg-neutral-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                          className="text-[9px] bg-white text-black px-2.5 py-1 rounded font-semibold hover:bg-neutral-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                           {assigningTicketId === row.ticket_id ? 'Assigning…' : 'Assign to me'}
                         </button>
-                      )}
-                      {!(user?.role === 2 && !row.assigned_to) && (
-                        <Badge variant={row.status?.toLowerCase() === 'open' ? 'open' : (row.status?.toLowerCase() === 'closed' || row.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')}
-                          className="capitalize text-[8px] px-1.5 py-0.5">{row.status}
-                        </Badge>
+                      ) : (
+                        <>
+                          {/* Expanded Assignee */}
+                          {!showConversation && row.assigned_to && (
+                            <span className="hidden lg:inline-block text-[10px] font-medium text-blue-400 truncate max-w-[100px] mr-2" title={`Assigned to ${row.assigned_to}`}>
+                              {row.assigned_to}
+                            </span>
+                          )}
+
+                          <Badge variant={row.status?.toLowerCase() === 'open' ? 'open' : (row.status?.toLowerCase() === 'closed' || row.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')}
+                            className="capitalize text-[9px] px-2 py-0.5 shrink-0">{row.status}
+                          </Badge>
+                        </>
                       )}
                     </div>
                   </div>
@@ -777,7 +818,7 @@ function Tickets() {
           Mobile: shown only when a ticket is selected (full screen)
           ═══════════════════════════════════════════════════════ */}
       {id && (
-        <div className={`flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 pb-24 lg:pb-0 ${showConversation ? 'flex' : 'hidden lg:flex'}`}
+        <div className={`flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 ${showConversation ? 'flex' : 'hidden lg:flex'}`}
           style={{ background: 'rgba(255,255,255,0.03)', minHeight: 0 }}>
 
           {chatTicketLoading ? (
@@ -882,7 +923,7 @@ function Tickets() {
                     })}
                   </div>
                 )}
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap pt-2 border-t border-white/5">
                   {canEditTicket && (
                     <button onClick={() => { setIsEditing(true); setDetailDrawerOpen(false); }}
                       className="flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-neutral-300 hover:bg-white/10 cursor-pointer">

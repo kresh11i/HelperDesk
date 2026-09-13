@@ -4,6 +4,24 @@ import bcrypt from "bcrypt";
 import { validate as isUUID } from "uuid";
 import { generateToken } from "./authServices.js";
 
+export async function getOrganization(org_id) {
+    try {
+        const { data, error } = await supabase
+            .from("organizations")
+            .select("name")
+            .eq("id", org_id)
+            .single();
+
+        if (error || !data) {
+            return { status: 404, message: "Organization not found" };
+        }
+
+        return { status: 200, message: "Organization fetched successfully", data };
+    } catch (err) {
+        return { status: 500, message: "Internal Server Error" };
+    }
+}
+
 export async function getTeam(org_id) {
     try {
         const { data, error } = await supabase

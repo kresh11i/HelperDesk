@@ -468,12 +468,15 @@ export async function assignTicket(info) {
             };
         }
 
+        const updateData = { assigned_to: target };
+        if (ticket.status === 'Open') {
+            updateData.status = 'Assigned';
+        }
+
         // Update ticket assignment
         const { data: updatedTicket, error: updateError } = await supabase
             .from("tickets")
-            .update({
-                assigned_to: target
-            })
+            .update(updateData)
             .eq("ticket_id", info.ticketId)
             .eq("org_id", info.org_id)
             .select("*, assigned_user:users!assigned_to(name)")
