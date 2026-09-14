@@ -20,7 +20,7 @@ function AdditionalStats({ recentTickets, loading, onViewAll, onTicketSelect }) 
           <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Recent Activity</h3>
           <p className="text-[10px] text-neutral-500 mt-0.5">Support tickets logged recently</p>
         </div>
-        <button 
+        <button
           onClick={onViewAll}
           className="text-xs text-neutral-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
         >
@@ -44,8 +44,8 @@ function AdditionalStats({ recentTickets, loading, onViewAll, onTicketSelect }) 
         ) : (
           <div className="flex flex-col h-full justify-start divide-y divide-white/5">
             {recentTickets.map((ticket) => (
-              <div 
-                key={ticket.ticket_id} 
+              <div
+                key={ticket.ticket_id}
                 onClick={() => onTicketSelect(ticket.ticket_id)}
                 className="flex flex-col md:flex-row md:items-center justify-between gap-3 py-4 group cursor-pointer hover:bg-white/5 rounded-xl px-4 -mx-4 transition-colors"
               >
@@ -56,7 +56,7 @@ function AdditionalStats({ recentTickets, loading, onViewAll, onTicketSelect }) 
                   </div>
                   <h4 className="font-semibold text-xs text-neutral-200 group-hover:text-blue-300 transition-colors truncate pr-4">{ticket.title}</h4>
                 </div>
-                
+
                 <div className="flex items-center gap-3 shrink-0 justify-between md:justify-end">
                   <Badge variant={ticket.status?.toLowerCase() === 'open' ? 'open' : (ticket.status?.toLowerCase() === 'closed' || ticket.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')} className="capitalize text-[9px] px-2 py-0.5">
                     <span className={`w-1 h-1 rounded-full mr-1.5 ${ticket.status?.toLowerCase() === 'open' ? 'bg-white' : 'bg-neutral-500'}`}></span>

@@ -511,7 +511,7 @@ function Team() {
               <Button variant="secondary" onClick={() => setRemoveModalOpen(false)} disabled={removeLoading}>
                 Cancel
               </Button>
-              <Button onClick={handleRemoveSubmit} disabled={removeLoading} className="bg-red-500 hover:bg-red-600 text-white border-transparent">
+              <Button onClick={handleRemoveSubmit} disabled={removeLoading} className="bg-red-400 hover:bg-red-500 text-black hover:text-white border-transparent">
                 {removeLoading ? 'Removing...' : 'Remove Member'}
               </Button>
             </div>

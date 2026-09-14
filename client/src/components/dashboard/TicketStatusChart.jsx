@@ -1,151 +1,136 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import GlassCard from '../ui/GlassCard';
+import { PieChart as PieChartIcon, MoreHorizontal } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 function TicketStatusChart({ tickets }) {
   const [hoveredSegment, setHoveredSegment] = useState(null);
 
-  // Group tickets into Open vs Resolved
-  // Open: Open, Reopened, Assigned, In Progress
-  // Resolved: Resolved, Closed
   const totalCount = tickets?.length || 0;
-  
-  const resolvedCount = tickets.filter(t => {
-    const status = t.status?.toLowerCase();
-    return status === 'closed' || status === 'resolved';
-  }).length;
-  
-  const openCount = totalCount - resolvedCount;
 
-  const resolvedPercent = totalCount > 0 ? Math.round((resolvedCount / totalCount) * 100) : 0;
-  const openPercent = totalCount > 0 ? Math.round((openCount / totalCount) * 100) : 0;
+  const statusCounts = useMemo(() => {
+    const counts = { open: 0, inProgress: 0, resolved: 0, closed: 0 };
+    tickets?.forEach(t => {
+      const s = t.status?.toLowerCase();
+      if (s === 'open' || s === 'reopened') counts.open++;
+      else if (s === 'in progress' || s === 'assigned') counts.inProgress++;
+      else if (s === 'resolved') counts.resolved++;
+      else if (s === 'closed') counts.closed++;
+      else counts.open++;
+    });
+    return counts;
+  }, [tickets]);
 
-  // Donut metrics (r = 50, circumference = 314.16)
-  const r = 50;
-  const circ = 2 * Math.PI * r; // ~314.159
+  const stats = [
+    { key: 'open', label: 'Open', value: statusCounts.open, color: '#34D399' },
+    { key: 'inProgress', label: 'In Progress', value: statusCounts.inProgress, color: '#60A5FA' },
+    { key: 'resolved', label: 'Resolved', value: statusCounts.resolved, color: '#C084FC' },
+    { key: 'closed', label: 'Closed', value: statusCounts.closed, color: '#94A3B8' },
+  ];
 
-  // Stroke widths
-  const strokeWidth = 14;
-  const hoverStrokeWidth = 18;
+  const chartData = totalCount > 0 ? stats.filter(s => s.value > 0) : [{ key: 'empty', label: 'Empty', value: 1, color: 'rgba(255,255,255,0.05)' }];
 
-  // Calculate dashes
-  const resolvedDash = (resolvedCount / (totalCount || 1)) * circ;
-  const openDash = (openCount / (totalCount || 1)) * circ;
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length && totalCount > 0) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-[#1C1C1C]/95 border border-white/10 rounded-lg p-2.5 shadow-2xl backdrop-blur-md flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: data.color }}></div>
+          <span className="text-xs font-medium text-white">{data.label}: {data.value}</span>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <GlassCard level={1} className="p-6 flex flex-col justify-between h-full relative group">
-      <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
-        <div>
-          <h3 className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-1">Open vs Resolved</h3>
-          <p className="text-neutral-400 text-[10px]">Support ticket distribution</p>
-        </div>
-        
-        {/* Legend */}
-        <div className="flex flex-wrap gap-4 shrink-0 mt-3 sm:mt-0">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-white shrink-0" />
-            <span className="text-[10px] font-semibold text-white">Open <span className="text-neutral-400 font-normal ml-0.5">{openCount} ({openPercent}%)</span></span>
+    <GlassCard level={1} className="p-0 flex flex-col h-full bg-[#0d0d0d] border border-white/5 overflow-hidden">
+      {/* Header section */}
+      <div className="p-5 pb-0">
+        <div className="flex justify-between items-start mb-1">
+          <div className="flex items-center gap-2">
+            <PieChartIcon className="w-5 h-5 text-[#10b981]" />
+            <h2 className="text-lg font-medium text-white tracking-wide">Summary</h2>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-neutral-500 shrink-0" />
-            <span className="text-[10px] font-semibold text-white">Resolved <span className="text-neutral-400 font-normal ml-0.5">{resolvedCount} ({resolvedPercent}%)</span></span>
-          </div>
+          <button className="text-neutral-500 hover:text-white transition-colors">
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
         </div>
+        <p className="text-[13px] text-neutral-500 font-medium mt-1">
+          Ticket distribution by status
+        </p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center pb-2">
+      <div className="flex-1 flex items-center justify-between p-5 mt-4 gap-8">
         {/* SVG Donut */}
-        <div className="relative w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center select-none mx-auto">
-          <svg 
-            width="100%" 
-            height="100%" 
-            viewBox="0 0 120 120"
-            className="transform -rotate-90 overflow-visible"
-          >
-            {/* Background Circle */}
-            <circle
-              cx="60"
-              cy="60"
-              r={r}
-              fill="transparent"
-              stroke="rgba(255, 255, 255, 0.03)"
-              strokeWidth={strokeWidth}
-            />
-
-            {totalCount === 0 ? (
-              // Empty State Circle
-              <circle
-                cx="60"
-                cy="60"
-                r={r}
-                fill="transparent"
-                stroke="rgba(255,255,255,0.08)"
-                strokeWidth={strokeWidth}
-              />
-            ) : (
-              <>
-                {/* Resolved Segment */}
-                {resolvedCount > 0 && (
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r={r}
-                    fill="transparent"
-                    stroke="#737373"
-                    strokeWidth={hoveredSegment === 'resolved' ? hoverStrokeWidth : strokeWidth}
-                    strokeDasharray={`${resolvedDash} ${circ}`}
-                    strokeDashoffset="0"
-                    strokeLinecap="round"
-                    className="transition-all duration-200 cursor-pointer"
-                    onMouseEnter={() => setHoveredSegment('resolved')}
-                    onMouseLeave={() => setHoveredSegment(null)}
+        <div className="relative w-[160px] h-[160px] flex items-center justify-center shrink-0 ml-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Tooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={65}
+                outerRadius={80}
+                paddingAngle={0}
+                dataKey="value"
+                stroke="none"
+                onMouseEnter={(_, index) => setHoveredSegment(chartData[index]?.key)}
+                onMouseLeave={() => setHoveredSegment(null)}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    className="transition-all duration-300 outline-none"
+                    style={{
+                      opacity: hoveredSegment && hoveredSegment !== entry.key && totalCount > 0 ? 0.4 : 1,
+                      filter: hoveredSegment === entry.key && totalCount > 0 ? 'brightness(1.1)' : 'none'
+                    }}
                   />
-                )}
-
-                {/* Open Segment */}
-                {openCount > 0 && (
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r={r}
-                    fill="transparent"
-                    stroke="#ffffff"
-                    strokeWidth={hoveredSegment === 'open' ? hoverStrokeWidth : strokeWidth}
-                    strokeDasharray={`${openDash} ${circ}`}
-                    strokeDashoffset={-resolvedDash}
-                    strokeLinecap="round"
-                    className="transition-all duration-200 cursor-pointer"
-                    onMouseEnter={() => setHoveredSegment('open')}
-                    onMouseLeave={() => setHoveredSegment(null)}
-                  />
-                )}
-              </>
-            )}
-          </svg>
-
-          {/* Center Info Text (absolute position center) */}
-          <div className="absolute flex flex-col items-center justify-center text-center">
-            {totalCount === 0 ? (
-              <>
-                <span className="text-xl font-light text-neutral-500">0%</span>
-                <span className="text-[8px] text-neutral-600 uppercase font-semibold">Empty</span>
-              </>
-            ) : hoveredSegment === 'open' ? (
-              <>
-                <span className="text-2xl font-light text-white">{openPercent}%</span>
-                <span className="text-[8px] text-neutral-500 uppercase font-semibold">Open</span>
-              </>
-            ) : hoveredSegment === 'resolved' ? (
-              <>
-                <span className="text-2xl font-light text-neutral-300">{resolvedPercent}%</span>
-                <span className="text-[8px] text-neutral-500 uppercase font-semibold">Resolved</span>
-              </>
-            ) : (
-              <>
-                <span className="text-2xl font-light text-white">{resolvedPercent}%</span>
-                <span className="text-[8px] text-neutral-500 uppercase font-semibold">Resolved</span>
-              </>
-            )}
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          
+          {/* Center Info Text */}
+          <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
+            <span className="text-[32px] font-semibold tracking-tight text-white leading-none">
+              {totalCount}
+            </span>
           </div>
+        </div>
+
+        {/* Legend List */}
+        <div className="flex-1 flex flex-col justify-center gap-3">
+          {stats.map((seg) => {
+            const displayPercent = totalCount > 0 ? Math.round((seg.value / totalCount) * 100) : 0;
+            const isHovered = hoveredSegment === seg.key;
+            return (
+              <div 
+                key={seg.key} 
+                className={`flex items-center justify-between transition-opacity duration-200 cursor-pointer ${hoveredSegment && !isHovered && totalCount > 0 ? 'opacity-40' : 'opacity-100'}`}
+                onMouseEnter={() => setHoveredSegment(seg.key)}
+                onMouseLeave={() => setHoveredSegment(null)}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div 
+                    className="w-2.5 h-2.5 rounded-full shrink-0" 
+                    style={{ backgroundColor: seg.color }}
+                  />
+                  <span className="text-[13px] font-medium text-neutral-300">
+                    {seg.label}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[13px] font-semibold text-white">
+                    {displayPercent}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </GlassCard>

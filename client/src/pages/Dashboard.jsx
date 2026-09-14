@@ -70,7 +70,11 @@ function Dashboard() {
   const myTicketsCount = tickets.filter(t => t.assigned_to === user?.name).length;
 
   // Sort descending by created time
-  const recentTickets = [...userTickets].reverse().slice(0, 4);
+  const recentTickets = [...userTickets].sort((a, b) => {
+    const valA = new Date(a.created_at || 0).getTime();
+    const valB = new Date(b.created_at || 0).getTime();
+    return valB - valA; // descending
+  }).slice(0, 4);
 
   // Skeletons
   const renderMetricsSkeleton = () => (
@@ -165,7 +169,10 @@ function Dashboard() {
             {loading ? (
               <div className="h-6 w-1/3 bg-white/10 rounded animate-pulse mt-2"></div>
             ) : (
-              <div className="text-4xl font-light tracking-tighter text-white mt-1">{userTickets.length}</div>
+              <>
+                <div className="text-4xl font-light tracking-tighter text-white mt-1">{userTickets.length}</div>
+                <div className="text-[10px] text-neutral-500">All tickets created</div>
+              </>
             )}
           </GlassCard>
 
@@ -233,9 +240,9 @@ function Dashboard() {
                   <div
                     key={ticket.ticket_id}
                     onClick={() => navigate(`/tickets/${ticket.ticket_id}`)}
-                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 py-3 group cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors"
+                    className="flex items-center gap-2 md:gap-4 py-3 group cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/5 rounded-lg px-3 -mx-3 transition-colors"
                   >
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[10px] font-medium text-neutral-500">#{String(ticket.ticket_id).slice(-4)}</span>
                         <Badge variant={ticket.priority?.toLowerCase() || 'medium'} className="uppercase text-[8px] px-1.5 py-0">{ticket.priority}</Badge>
@@ -243,7 +250,7 @@ function Dashboard() {
                       <h4 className="font-medium text-sm text-neutral-200 group-hover:text-blue-300 transition-colors truncate pr-4">{ticket.title}</h4>
                     </div>
 
-                    <div className="flex items-center gap-3 mt-1 md:mt-0 justify-between md:justify-end shrink-0">
+                    <div className="flex items-center gap-3 justify-end shrink-0">
                       <Badge variant={ticket.status?.toLowerCase() === 'open' ? 'open' : (ticket.status?.toLowerCase() === 'closed' || ticket.status?.toLowerCase() === 'resolved' ? 'resolved' : 'inProgress')} className="capitalize text-[10px] px-2.5 py-0.5">
                         <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${ticket.status?.toLowerCase() === 'open' ? 'bg-white' : 'bg-neutral-500'}`}></span>
                         {ticket.status}

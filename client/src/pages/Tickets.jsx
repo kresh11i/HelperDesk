@@ -520,12 +520,7 @@ function Tickets() {
                   </div>
                 )}
 
-                {isAgent && !ticket.assigned_to && !isClosedTicket && (
-                  <button onClick={handleSelfAssign} disabled={updating}
-                    className="text-[9px] text-blue-400 hover:text-blue-300 font-semibold mt-1 block cursor-pointer">
-                    Assign to me
-                  </button>
-                )}
+
               </div>
 
               {/* Requester */}
@@ -690,7 +685,7 @@ function Tickets() {
                     </div>
 
                     {/* Column 1: ID, Title, Priority */}
-                    <div className={`flex flex-col min-w-0 ${!showConversation ? 'lg:w-[35%] lg:flex-none' : 'flex-1'}`}>
+                    <div className={`flex flex-col min-w-0 flex-1 ${!showConversation ? 'lg:w-[35%] lg:flex-none' : ''}`}>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-[9px] text-neutral-500 font-mono font-medium">#{String(row.ticket_id).slice(-4)}</span>
                         <Badge variant={row.priority?.toLowerCase() || 'medium'} className="text-[7px] px-1 py-0 uppercase">{row.priority}</Badge>
