@@ -18,7 +18,7 @@ const Sidebar = () => {
     <GlassCard level={1} className="hidden md:flex flex-col w-64 h-[calc(100vh-2rem)] sticky top-4 m-4 p-6 border-r-0 rounded-3xl">
       <div className="flex items-center gap-3 mb-10 px-2">
         <LifeBuoy className="w-8 h-8 text-white" />
-        <span className="font-semibold text-xl tracking-tight">HelperDesk</span>
+        <span className="font-semibold text-xl tracking-tight">RELAY</span>
       </div>
 
       <div className="text-xs font-semibold text-neutral-500 tracking-wider mb-4 px-2 uppercase">

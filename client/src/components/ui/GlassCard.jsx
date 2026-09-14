@@ -1,13 +1,12 @@
-import { useRef } from 'react';
+import { forwardRef } from 'react';
 
-const GlassCard = ({ children, level = 1, className = '', ...props }) => {
-  const cardRef = useRef(null);
+const GlassCard = forwardRef(({ children, level = 1, className = '', ...props }, ref) => {
   const isAbsolute = className.includes('absolute') || className.includes('fixed');
   const baseClasses = `rounded-2xl transition-all duration-300 overflow-hidden group/glass ${isAbsolute ? '' : 'relative'}`;
   const glassClasses = `glass-${level}`;
 
   const handleMouseMove = (e) => {
-    const card = cardRef.current;
+    const card = ref?.current;
     if (!card) return;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -18,7 +17,7 @@ const GlassCard = ({ children, level = 1, className = '', ...props }) => {
 
   return (
     <div 
-      ref={cardRef}
+      ref={ref}
       onMouseMove={handleMouseMove}
       className={`${baseClasses} ${glassClasses} ${className}`}
       {...props}
@@ -38,6 +37,6 @@ const GlassCard = ({ children, level = 1, className = '', ...props }) => {
       {children}
     </div>
   );
-};
+});
 
 export default GlassCard;

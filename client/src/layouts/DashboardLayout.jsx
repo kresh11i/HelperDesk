@@ -4,6 +4,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import BottomNav from '../components/navigation/BottomNav';
 import { LogOut, User } from 'lucide-react';
 import GlassCard from '../components/ui/GlassCard';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function DashboardLayout({ children }) {
   const { user, logout } = useContext(AuthContext);
@@ -69,8 +70,8 @@ function DashboardLayout({ children }) {
         {/* Left: Brand */}
         <div className="w-1/3 flex items-center">
           <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-white text-black flex items-center justify-center font-bold text-xs">H</div>
-            Helperdesk
+            <div className="w-6 h-6 rounded-md bg-white text-black flex items-center justify-center font-bold text-xs">R</div>
+            RELAY
           </h2>
         </div>
 
@@ -104,32 +105,43 @@ function DashboardLayout({ children }) {
               {getInitials(user?.name)}
             </button>
 
-            {dropdownOpen && (
-              <GlassCard level={3} className="absolute right-0 top-14 w-60 p-2 flex flex-col gap-1 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
-                <div className="px-3 py-3 border-b border-white/10 mb-1">
-                  <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
-                  <p className="text-xs text-neutral-400 truncate">{user?.email}</p>
-                  <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-widest uppercase bg-white/10 text-neutral-300 border border-white/10">
-                    {user?.role === 1 ? 'Admin' : user?.role === 2 ? 'Agent' : 'User'}
-                  </div>
-                </div>
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute right-0 top-14 w-60 z-50 origin-top-right rounded-2xl bg-[#111111] shadow-2xl"
+                  style={{ backfaceVisibility: "hidden", WebkitFontSmoothing: "antialiased" }}
+                >
+                  <GlassCard level={3} className="p-2 flex flex-col gap-1 w-full">
+                    <div className="px-3 py-3 border-b border-white/10 mb-1">
+                      <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
+                      <p className="text-xs text-neutral-400 truncate">{user?.email}</p>
+                      <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-widest uppercase bg-white/10 text-neutral-300 border border-white/10">
+                        {user?.role === 1 ? 'Admin' : user?.role === 2 ? 'Agent' : 'User'}
+                      </div>
+                    </div>
 
-                <button onClick={() => { setDropdownOpen(false); navigate('/account'); }} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-neutral-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left">
-                  <User className="w-4 h-4" /> Account Settings
-                </button>
+                    <button onClick={() => { setDropdownOpen(false); navigate('/account'); }} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-neutral-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left">
+                      <User className="w-4 h-4" /> Account Settings
+                    </button>
 
-                <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors text-left mt-1">
-                  <LogOut className="w-4 h-4" /> Sign Out
-                </button>
-              </GlassCard>
-            )}
+                    <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors text-left mt-1">
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                  </GlassCard>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className={`flex-1 flex flex-col min-w-0 scrollbar-hide ${location.pathname.startsWith('/tickets') ? 'overflow-hidden' : `overflow-y-auto ${user?.role === 1 ? 'lg:overflow-y-auto' : 'lg:overflow-hidden'}`}`}>
-        <div className={`flex-1 flex flex-col px-6 md:px-10 max-w-[1600px] w-full mx-auto relative ${location.pathname.startsWith('/tickets') ? 'min-h-0 md:min-h-0 pt-0 md:pt-0 pb-24 lg:pb-24' : 'pt-2 md:pt-4 pb-48 lg:pb-48'}`}>
+      <main className={`flex-1 flex flex-col min-w-0 scrollbar-hide ${location.pathname.startsWith('/tickets') ? 'overflow-hidden' : location.pathname.startsWith('/account') ? 'overflow-y-auto lg:overflow-y-auto' : `overflow-y-auto ${user?.role === 1 ? 'lg:overflow-y-auto' : 'lg:overflow-hidden'}`}`}>
+        <div className={`flex-1 flex flex-col px-6 md:px-10 max-w-[1600px] w-full mx-auto relative ${location.pathname.startsWith('/tickets') ? 'min-h-0 md:min-h-0 pt-0 md:pt-0 pb-24 lg:pb-24' : 'pt-2 md:pt-4 pb-32 lg:pb-32'}`}>
           {children}
         </div>
       </main>

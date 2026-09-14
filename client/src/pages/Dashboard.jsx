@@ -98,7 +98,7 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-12 auto-rows-min gap-4 md:gap-4">
+      <div className={`grid grid-cols-2 md:grid-cols-12 auto-rows-min gap-4 md:gap-4 ${!isAdmin ? 'flex-1 md:grid-rows-[auto_1fr_auto]' : ''}`}>
 
         {/* Welcome Banner */}
         <GlassCard level={1} className="col-span-2 md:col-span-6 p-6 md:p-8 flex flex-col justify-between min-h-[160px] md:min-h-[150px]">

@@ -13,7 +13,7 @@ function KnowledgeBase() {
     { id: 3, title: 'Requesting a new software license', category: 'Software', readTime: '2 min read' },
     { id: 4, title: 'Troubleshooting email sync issues on mobile', category: 'Mobile', readTime: '4 min read' },
     { id: 5, title: 'Setting up your desk phone and voicemail', category: 'Hardware', readTime: '6 min read' },
-    { id: 6, title: 'Using the new Helpdesk portal', category: 'General', readTime: '3 min read' },
+    { id: 6, title: 'Using the new RELAY portal', category: 'General', readTime: '3 min read' },
   ];
 
   const filteredArticles = articles.filter(a => a.title.toLowerCase().includes(search.toLowerCase()) || a.category.toLowerCase().includes(search.toLowerCase()));

@@ -1,9 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import GlassCard from '../ui/GlassCard';
 import { PieChart as PieChartIcon, MoreHorizontal } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion, useInView } from 'framer-motion';
+
+const MotionGlassCard = motion(GlassCard);
 
 function TicketStatusChart({ tickets }) {
+  const chartRef = useRef(null);
+  const isInView = useInView(chartRef, { once: false, amount: 0.3 });
   const [hoveredSegment, setHoveredSegment] = useState(null);
 
   const totalCount = tickets?.length || 0;
@@ -44,7 +49,14 @@ function TicketStatusChart({ tickets }) {
   };
 
   return (
-    <GlassCard level={1} className="p-0 flex flex-col h-full bg-[#0d0d0d] border border-white/5 overflow-hidden">
+    <MotionGlassCard
+      ref={chartRef}
+      level={1}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+      className="p-0 flex flex-col h-full bg-[#0d0d0d] border border-white/5 overflow-hidden"
+    >
       {/* Header section */}
       <div className="p-5 pb-0">
         <div className="flex justify-between items-start mb-1">
@@ -65,8 +77,8 @@ function TicketStatusChart({ tickets }) {
         {/* SVG Donut */}
         <div className="relative w-[160px] h-[160px] flex items-center justify-center shrink-0 ml-2">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Tooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+            <PieChart key={isInView ? 'visible' : 'hidden'}>
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
               <Pie
                 data={chartData}
                 cx="50%"
@@ -75,13 +87,17 @@ function TicketStatusChart({ tickets }) {
                 outerRadius={80}
                 paddingAngle={0}
                 dataKey="value"
+                isAnimationActive={isInView}
+                animationBegin={500}
+                animationDuration={1000}
+                animationEasing="ease-out"
                 stroke="none"
                 onMouseEnter={(_, index) => setHoveredSegment(chartData[index]?.key)}
                 onMouseLeave={() => setHoveredSegment(null)}
               >
                 {chartData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
+                  <Cell
+                    key={`cell-${index}`}
                     fill={entry.color}
                     className="transition-all duration-300 outline-none"
                     style={{
@@ -93,7 +109,7 @@ function TicketStatusChart({ tickets }) {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          
+
           {/* Center Info Text */}
           <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
             <span className="text-[32px] font-semibold tracking-tight text-white leading-none">
@@ -108,15 +124,15 @@ function TicketStatusChart({ tickets }) {
             const displayPercent = totalCount > 0 ? Math.round((seg.value / totalCount) * 100) : 0;
             const isHovered = hoveredSegment === seg.key;
             return (
-              <div 
-                key={seg.key} 
+              <div
+                key={seg.key}
                 className={`flex items-center justify-between transition-opacity duration-200 cursor-pointer ${hoveredSegment && !isHovered && totalCount > 0 ? 'opacity-40' : 'opacity-100'}`}
                 onMouseEnter={() => setHoveredSegment(seg.key)}
                 onMouseLeave={() => setHoveredSegment(null)}
               >
                 <div className="flex items-center gap-2.5">
-                  <div 
-                    className="w-2.5 h-2.5 rounded-full shrink-0" 
+                  <div
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: seg.color }}
                   />
                   <span className="text-[13px] font-medium text-neutral-300">
@@ -133,7 +149,7 @@ function TicketStatusChart({ tickets }) {
           })}
         </div>
       </div>
-    </GlassCard>
+    </MotionGlassCard>
   );
 }
 

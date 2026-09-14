@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import GlassCard from '../components/ui/GlassCard';
@@ -6,10 +6,30 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import { User, Mail, Shield, Building } from 'lucide-react';
 import PageContainer from '../components/layout/PageContainer';
+import { getCurrentOrganization } from '../services/orgService';
 
 function Account() {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
+  const [orgName, setOrgName] = useState(user?.org_id ? 'Loading...' : 'Acme Corp');
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchOrg = async () => {
+      if (user?.org_id) {
+        try {
+          const res = await getCurrentOrganization();
+          if (isMounted && res && res.data && res.data.name) {
+            setOrgName(res.data.name);
+          }
+        } catch (error) {
+          console.error("Failed to fetch org", error);
+        }
+      }
+    };
+    fetchOrg();
+    return () => { isMounted = false; };
+  }, [user?.org_id]);
 
   const handleSignOut = () => {
     logout();
@@ -81,7 +101,7 @@ function Account() {
           </div>
           <div>
             <p className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase mb-0.5">Organization</p>
-            <p className="text-sm text-neutral-200">{user?.org_id || 'Acme Corp'}</p>
+            <p className="text-sm text-neutral-200">{orgName}</p>
           </div>
         </div>
 
